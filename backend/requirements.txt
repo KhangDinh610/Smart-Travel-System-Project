@@ -1,0 +1,13 @@
+# --- Framework & Server (Quy định của dự án) ---
+fastapi
+uvicorn[standard]
+python-multipart
+
+# --- Computer Vision (Xử lý ảnh thô) ---
+opencv-python
+Pillow
+
+# --- Deep Learning & AI Core (Trích xuất Vector) ---
+torch
+torchvision
+transformers
