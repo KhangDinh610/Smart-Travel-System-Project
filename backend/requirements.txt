@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+python-dotenv
+pydantic-settings
+sqlalchemy
+databases[sqlite]
+sentence-transformers
+numpy
+scikit-learn
+requests
