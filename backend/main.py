@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from dotenv import load_dotenv
 
 # Import routes
-from routes import duplicate
+from routes import duplicate, chatbot, recommendation
 
 load_dotenv()
 
@@ -21,8 +21,8 @@ except Exception as e:
 
 app = FastAPI(
     title="Smart Shopping System API",
-    description="Backend API for Smart Shopping Project with Duplicate Detection",
-    version="1.1.0"
+    description="Backend API for Smart Shopping Project with Duplicate Detection, NLP Chatbot RAG, and Recommendation Engine",
+    version="1.2.0"
 )
 
 # Configure CORS
@@ -38,6 +38,8 @@ db = firestore.client()
 
 # Register routers
 app.include_router(duplicate.router)
+app.include_router(chatbot.router)
+app.include_router(recommendation.router)
 
 # --- Auth Models & Logic (Tham khảo từ todo_app) ---
 
@@ -45,9 +47,9 @@ class AuthRequest(BaseModel):
     email: str
     password: str
 
-FIREBASE_WEB_API_KEY = os.getenv("FIREBASE_WEB_API_KEY", "key1")
-GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "key2")
-GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET", "key3")
+FIREBASE_WEB_API_KEY = os.getenv("FIREBASE_WEB_API_KEY", "")
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "")
+GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET", "")
 
 @app.post("/register", tags=["Auth"])
 def register(request: AuthRequest):
@@ -61,28 +63,59 @@ def register(request: AuthRequest):
             "email": request.email,
             "role": "user"
         })
-        return {"message": "Tạo tài khoản thành công", "uid": user.uid}
+
+        if FIREBASE_WEB_API_KEY:
+            login_url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={FIREBASE_WEB_API_KEY}"
+            payload = {
+                "email": request.email,
+                "password": request.password,
+                "returnSecureToken": True
+            }
+            login_response = requests.post(login_url, json=payload)
+            if login_response.status_code == 200:
+                login_data = login_response.json()
+                return {
+                    "message": "Tạo tài khoản thành công",
+                    "uid": user.uid,
+                    "idToken": login_data.get("idToken"),
+                    "localId": login_data.get("localId")
+                }
+
+        return {
+            "message": "Tạo tài khoản thành công",
+            "uid": user.uid,
+            "warning": "FIREBASE_WEB_API_KEY chưa được cấu hình hoặc không hợp lệ. Hãy đăng nhập bằng tài khoản mới sau khi cấu hình đúng."
+        }
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 @app.post("/login", tags=["Auth"])
 def login(user: AuthRequest):
+    if not FIREBASE_WEB_API_KEY:
+        raise HTTPException(status_code=500, detail="FIREBASE_WEB_API_KEY chưa được cấu hình. Vui lòng thiết lập biến môi trường hoặc tệp .env.")
+
     url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={FIREBASE_WEB_API_KEY}"
     payload = {
         "email": user.email,
         "password": user.password,
         "returnSecureToken": True
     }
-    response = requests.post(url, json=payload)
-    data = response.json()
+    try:
+        response = requests.post(url, json=payload)
+        data = response.json()
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Lỗi khi gọi Firebase Auth: {exc}")
+
     if response.status_code == 200:
         return {
             "message": "Login successful",
-            "idToken": data["idToken"],
-            "localId": data["localId"]
+            "idToken": data.get("idToken"),
+            "localId": data.get("localId")
         }
     else:
-        raise HTTPException(status_code=400, detail="Invalid email or password")
+        firebase_error = data.get("error", {}).get("message") if isinstance(data, dict) else None
+        detail = firebase_error or "Invalid email or password"
+        raise HTTPException(status_code=400, detail=detail)
 
 class GoogleAuthRequest(BaseModel):
     code: str
