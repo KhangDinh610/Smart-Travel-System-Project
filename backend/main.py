@@ -34,7 +34,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-db = firestore.client()
+# Initialize Firestore client safely
+try:
+    db = firestore.client()
+except Exception as e:
+    print(f"Cảnh báo: Không thể khởi tạo Firestore client. {e}")
+    db = None
 
 # Register routers
 app.include_router(duplicate.router)
@@ -51,6 +56,15 @@ FIREBASE_WEB_API_KEY = os.getenv("FIREBASE_WEB_API_KEY", "")
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET", "")
 
+def get_db():
+    """Get Firestore client or return None if not initialized."""
+    if db is not None:
+        return db
+    try:
+        return firestore.client()
+    except Exception:
+        return None
+
 @app.post("/register", tags=["Auth"])
 def register(request: AuthRequest):
     try:
@@ -59,10 +73,12 @@ def register(request: AuthRequest):
             password=request.password
         )
         # Khởi tạo user trong Firestore
-        db.collection("users").document(user.uid).set({
-            "email": request.email,
-            "role": "user"
-        })
+        firestore_db = get_db()
+        if firestore_db:
+            firestore_db.collection("users").document(user.uid).set({
+                "email": request.email,
+                "role": "user"
+            })
 
         if FIREBASE_WEB_API_KEY:
             login_url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={FIREBASE_WEB_API_KEY}"
@@ -180,7 +196,12 @@ def login_google(request: GoogleAuthRequest):
 
 @app.get("/health", tags=["System"])
 async def health_check():
-    return {"status": "healthy", "version": "1.1.0"}
+    firestore_db = get_db()
+    return {
+        "status": "healthy",
+        "version": "1.2.0",
+        "firebase": "connected" if firestore_db else "disconnected"
+    }
 
 @app.get("/", tags=["System"])
 async def root():

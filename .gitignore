@@ -1,0 +1,11 @@
+# Python
+__pycache__/
+*.pyc
+
+# Database & Secrets
+test.db
+serviceAccountKey.json
+.env
+
+# OS rác
+.DS_Store
