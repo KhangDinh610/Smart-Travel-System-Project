@@ -1,0 +1,69 @@
+# ==========================================
+# 1. Môi trường ảo (Virtual Environments)
+# ==========================================
+.venv/
+venv/
+env/
+ENV/
+
+# ==========================================
+# 2. File tạm & Cache của Python
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# ==========================================
+# 3. Môi trường IDE & Editor
+# ==========================================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ==========================================
+# 4. Trọng số Mô hình AI & Dữ liệu (Models & Data)
+# ==========================================
+*.pt
+*.pth
+*.ckpt
+*.onnx
+models/
+weights/
+# Bỏ qua các file dữ liệu thô hoặc kết quả cào dữ liệu
+*.csv
+*.xlsx
+# Bỏ qua thư mục chứa ảnh do FE gửi lên (nếu có lưu tạm)
+uploads/
+temp/
+images_cache/
+
+# ==========================================
+# 5. File cấu hình biến môi trường (Bảo mật)
+# ==========================================
+.env
+.env.local
+.env.*.local
+
+# ==========================================
+# 6. File rác của Hệ điều hành (OS Junk)
+# ==========================================
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS (Đề phòng thành viên khác dùng Mac)
+.DS_Store
+.DS_Store?
+._*
+.Trashes
+
+# ==========================================
+# 7. File Log hệ thống
+# ==========================================
+*.log
+logs/
