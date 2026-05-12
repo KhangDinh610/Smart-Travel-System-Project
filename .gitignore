@@ -46,6 +46,7 @@ images_cache/
 .env
 .env.local
 .env.*.local
+.streamlit/secrets.toml
 
 # ==========================================
 # 6. File rác của Hệ điều hành (OS Junk)

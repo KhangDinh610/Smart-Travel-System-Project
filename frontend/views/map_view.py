@@ -5,8 +5,8 @@ from streamlit_folium import st_folium
 from streamlit_geolocation import streamlit_geolocation
 
 def render_map_view():
-    st.title("🗺️ Bản đồ Cửa hàng & Điểm mua sắm")
-    st.markdown("Hiển thị các cửa hàng và gợi ý trên bản đồ.")
+    st.markdown("<h1 style='text-align: center;'>🗺️ Bản đồ Cửa hàng & Điểm mua sắm</h1>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center;'>Hiển thị các cửa hàng và gợi ý trên bản đồ.</p>", unsafe_allow_html=True)
     
     # Dữ liệu mẫu (Mock Data) cho các cửa hàng (Week 2 requirement)
     sample_shops = [
