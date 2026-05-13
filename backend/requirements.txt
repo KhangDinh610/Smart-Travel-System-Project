@@ -8,4 +8,11 @@ sentence-transformers
 numpy
 scikit-learn
 requests
+streamlit
+opencv-python
+pillow
+transformers
+torch
+torchvision
+rembg[cpu]
 chromadb
