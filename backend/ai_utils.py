@@ -192,7 +192,7 @@ class KnowledgeBase:
             self.embeddings = None
 
     def retrieve(self, query: str, top_k: int = 3) -> List[Dict]:
-        if not self.embeddings or not self.documents:
+        if self.embeddings is None or not self.documents:
             return []
         query_embedding = self.model.encode(query, convert_to_tensor=True)
         similarity_scores = util.cos_sim(query_embedding, self.embeddings)[0]

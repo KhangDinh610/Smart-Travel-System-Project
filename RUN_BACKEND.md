@@ -46,7 +46,7 @@ uvicorn main:app --reload --host 127.0.0.1 --port 8001
 ## Troubleshooting
 
 ### Lỗi: "The default Firebase app does not exist"
-✅ **Đã sửa** - Backend sẽ chạy bình thường mà không cần Firebase
+ **Đã sửa** - Backend sẽ chạy bình thường mà không cần Firebase
 
 ### Lỗi: "Port 8000 already in use"
 ```bash
