@@ -79,7 +79,7 @@ def render_map_view():
                 st.session_state['current_shop'] = shop_info.to_dict()
                 
         # Hiển thị thông tin cửa hàng đang được chọn (lấy từ state)
-        if st.session_state['current_shop']:
+        if st.session_state.get('current_shop'):
             shop = st.session_state['current_shop']
             st.success(f"**{shop['name']}**")
             st.write(f"**Loại:** {shop['type']}")
