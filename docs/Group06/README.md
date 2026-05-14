@@ -1,1 +1,0 @@
-**GeminiCLI.** _Gemini 3_, truy cập lúc 15:30 14/05/2026, prompt: "Dựa vào các tính năng đang có của project. Hãy lấy đó làm cơ sở vẽ Soft Architecture. Yêu cầu: tham khảo trang c4model => Level 1: System Context + Level 2: Container", dùng để hỗ trợ phần vẽ Software Architecture, sinh viên tự hiệu chỉnh nội dung.
