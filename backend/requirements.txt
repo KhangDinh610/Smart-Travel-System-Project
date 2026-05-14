@@ -9,3 +9,11 @@ numpy
 scikit-learn
 requests
 chromadb
+google-genai
+firebase-admin
+pillow
+rembg
+torch
+transformers
+python-multipart
+email-validator

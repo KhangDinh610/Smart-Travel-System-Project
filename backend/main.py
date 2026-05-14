@@ -53,6 +53,10 @@ from api_contract import router as api_router
 # Initialize database
 init_db()
 
+# Sync to VectorDB for smart features
+from api_contract import sync_db_to_vector
+sync_db_to_vector()
+
 app = FastAPI(
     title="Smart Shopping System API",
     description="Backend API for Smart Shopping Project - BE 1",
