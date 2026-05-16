@@ -2,22 +2,10 @@ import streamlit as st
 import time
 
 def render_camera_view():
-    st.markdown("<h1 style='text-align: center;'>📸 Camera Scan (Nhận diện sản phẩm)</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center;'>Chụp hoặc tải ảnh sản phẩm lên để hệ thống nhận diện và tìm kiếm sản phẩm tương tự.</p>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align: center;'>📸 Quét Ảnh (Nhận diện sản phẩm)</h1>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center;'>Kéo thả hoặc tải ảnh sản phẩm lên từ thiết bị để hệ thống nhận diện.</p>", unsafe_allow_html=True)
 
-    tab1, tab2 = st.tabs(["📷 Chụp ảnh (Camera)", "📁 Tải ảnh lên"])
-    
-    image_data = None
-    
-    with tab1:
-        camera_image = st.camera_input("Sử dụng camera của bạn")
-        if camera_image:
-            image_data = camera_image
-            
-    with tab2:
-        uploaded_image = st.file_uploader("Hoặc chọn ảnh từ thiết bị", type=["png", "jpg", "jpeg"])
-        if uploaded_image:
-            image_data = uploaded_image
+    image_data = st.file_uploader("Kéo thả ảnh vào đây hoặc bấm để chọn ảnh", type=["png", "jpg", "jpeg"])
 
     if image_data:
         st.success("Đã nhận ảnh! Đang phân tích...")
@@ -45,3 +33,4 @@ def render_camera_view():
                 st.caption(f"Độ khớp: {product['confidence']}%")
                 if st.button("Xem chi tiết", key=f"btn_scan_{product['id']}"):
                     st.success("Tính năng chi tiết sẽ được phát triển sau.")
+

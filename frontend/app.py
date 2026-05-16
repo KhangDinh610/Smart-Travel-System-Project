@@ -40,18 +40,28 @@ def main():
     st.sidebar.title("🛍️ Smart Shopping")
     st.sidebar.markdown("---")
     
-    # Navigation menu
-    menu = ["Bản đồ (Map)", "Trợ lý AI (Chatbot)", "Quét Ảnh (Camera)", "Ghi chép Mua sắm (Log)"]
-    choice = st.sidebar.radio("Điều hướng", menu)
+    # Navigation menu as framed buttons
+    st.sidebar.markdown("### Điều hướng")
+    
+    menu_items = {
+        "Bản đồ (Map)": {"icon": "🗺️", "title": "Bản đồ (Map)", "view": render_map_view},
+        "Trợ lý AI (Chatbot)": {"icon": "💬", "title": "Trợ lý AI (Chatbot)", "view": render_chatbot_view},
+        "Quét Ảnh (Camera)": {"icon": "📸", "title": "Quét Ảnh (Camera)", "view": render_camera_view},
+        "Ghi chép Mua sắm (Log)": {"icon": "📝", "title": "Ghi chép Mua sắm (Log)", "view": render_purchase_view}
+    }
+    
+    if "current_page" not in st.session_state or st.session_state.current_page not in menu_items:
+        st.session_state.current_page = "Bản đồ (Map)"
+        
+    for key, data in menu_items.items():
+        is_active = (st.session_state.current_page == key)
+        label = f"{data['icon']} {data['title']}"
+        if st.sidebar.button(label, use_container_width=True, type="primary" if is_active else "secondary"):
+            st.session_state.current_page = key
+            st.rerun()
 
-    if choice == "Bản đồ (Map)":
-        render_map_view()
-    elif choice == "Trợ lý AI (Chatbot)":
-        render_chatbot_view()
-    elif choice == "Quét Ảnh (Camera)":
-        render_camera_view()
-    elif choice == "Ghi chép Mua sắm (Log)":
-        render_purchase_view()
+    choice = st.session_state.current_page
+    menu_items[choice]["view"]()
 
 if __name__ == '__main__':
     main()
