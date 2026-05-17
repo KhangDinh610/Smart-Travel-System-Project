@@ -16,3 +16,7 @@ torch
 torchvision
 rembg[cpu]
 chromadb
+google-genai
+firebase-admin
+python-multipart
+email-validator

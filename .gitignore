@@ -46,9 +46,19 @@ images_cache/
 .env
 .env.local
 .env.*.local
+*.json
+# Bỏ qua cụ thể các file key nếu bạn lỡ đổi tên
+serviceAccountKey.json
+gcp-vision-key.json
 
 # ==========================================
-# 6. File rác của Hệ điều hành (OS Junk)
+# 6. Cơ sở dữ liệu (Database)
+# ==========================================
+*.db
+*.sqlite3
+
+# ==========================================
+# 7. File rác của Hệ điều hành (OS Junk)
 # ==========================================
 # Windows
 Thumbs.db
