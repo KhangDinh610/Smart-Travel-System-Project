@@ -38,23 +38,98 @@ def get_image_extractor():
 
 # --- Sync Logic ---
 def sync_db_to_vector():
-    """Đồng bộ dữ liệu từ SQLite sang ChromaDB để tìm kiếm thông minh"""
-    from database import SessionLocal, Product
+    """Đồng bộ dữ liệu văn bản từ SQLite sang ChromaDB để tìm kiếm thông minh"""
+    from database import SessionLocal, Product, History, Shop
     db = SessionLocal()
     try:
+        # 1. Đồng bộ sản phẩm chung
         products = db.query(Product).all()
-        if not products:
-            print("No products in SQLite to sync.")
-            return
+        if products:
+            ids = [f"prod_{p.id}" for p in products]
+            documents = [f"{p.name} - {p.description or ''}" for p in products]
+            
+            metadatas = []
+            for p in products:
+                shop = db.query(Shop).filter(Shop.id == p.shop_id).first()
+                metadatas.append({
+                    "shop_id": p.shop_id,
+                    "shop_name": shop.name if shop else "Unknown",
+                    "shop_address": shop.address if shop else "Unknown",
+                    "name": p.name,
+                    "description": p.description or "",
+                    "price": p.price or 0.0,
+                    "user_id": "system"
+                })
+            
+            vector_db.add_documents(ids=ids, documents=documents, metadatas=metadatas)
         
-        ids = [str(p.id) for p in products]
-        documents = [f"{p.name} - {p.description or ''}" for p in products]
-        metadatas = [{"shop_id": p.shop_id, "name": p.name} for p in products]
+        # 2. Đồng bộ lịch sử cá nhân
+        histories = db.query(History).all()
+        if histories:
+            h_ids = [f"hist_{h.id}" for h in histories]
+            h_docs = [f"{h.product_id} (Đã mua)" for h in histories]
+            h_metas = [{"user_id": h.user_id, "type": "history"} for h in histories]
+            vector_db.add_documents(ids=h_ids, documents=h_docs, metadatas=h_metas)
+            
+        print(f"Synced text data to ChromaDB.")
         
-        vector_db.add_documents(ids=ids, documents=documents, metadatas=metadatas)
-        print(f"Synced {len(products)} products to ChromaDB.")
+        # 3. Đồng bộ vector ảnh (nếu có)
+        sync_image_collection_from_sqlite()
+        
     except Exception as e:
         print(f"Error syncing to VectorDB: {e}")
+    finally:
+        db.close()
+
+def sync_image_collection_from_sqlite():
+    """Đồng bộ vector ảnh (CLIP) từ SQLite sang ChromaDB collection riêng"""
+    from database import SessionLocal, Product, Shop
+    db = SessionLocal()
+    try:
+        products = db.query(Product).filter(Product.vector_json != None).all()
+        if not products:
+            print("No image vectors found in SQLite to sync.")
+            return
+
+        ids = []
+        embeddings = []
+        metadatas = []
+        documents = []
+
+        for p in products:
+            try:
+                vector = json.loads(p.vector_json)
+                if not isinstance(vector, list):
+                    continue
+                
+                shop = db.query(Shop).filter(Shop.id == p.shop_id).first()
+                
+                ids.append(f"img_prod_{p.id}")
+                embeddings.append(vector)
+                documents.append(p.name)
+                metadatas.append({
+                    "product_id": p.id,
+                    "name": p.name,
+                    "description": p.description or "",
+                    "price": p.price or 0.0,
+                    "shop_id": p.shop_id,
+                    "shop_name": shop.name if shop else "Unknown",
+                    "shop_address": shop.address if shop else "Unknown",
+                })
+            except Exception as ve:
+                print(f"Error parsing vector for product {p.id}: {ve}")
+
+        if ids:
+            vector_db.add_with_embeddings(
+                ids=ids,
+                embeddings=embeddings,
+                metadatas=metadatas,
+                documents=documents,
+                collection_name="product_images"
+            )
+            print(f"Synced {len(ids)} image vectors to ChromaDB.")
+    except Exception as e:
+        print(f"Error syncing image collection: {e}")
     finally:
         db.close()
 
@@ -212,21 +287,59 @@ async def visual_search(file: UploadFile = File(...)):
     image = Image.open(io.BytesIO(contents))
     extractor = get_image_extractor()
     vector = extractor.extract_vector(image)
-    return {"vector": vector.tolist()}
+    
+    # Tìm kiếm trong ChromaDB collection dành cho ảnh
+    try:
+        results = vector_db.query(
+            query_embeddings=[vector.tolist()],
+            n_results=5,
+            collection_name="product_images"
+        )
+        
+        products = []
+        if results and results['metadatas'] and results['metadatas'][0]:
+            for i in range(len(results['metadatas'][0])):
+                meta = results['metadatas'][0][i]
+                dist = results['distances'][0][i]
+                products.append({
+                    "id": meta.get("product_id"),
+                    "name": meta.get("name"),
+                    "description": meta.get("description"),
+                    "price": meta.get("price"),
+                    "shop_name": meta.get("shop_name"),
+                    "shop_address": meta.get("shop_address"),
+                    "score": float(max(0, 1 - dist))
+                })
+        
+        return {"products": products}
+    except Exception as e:
+        print(f"Visual search error: {e}")
+        return {"products": [], "error": str(e)}
+
+@router.post("/sync", tags=["System"])
+async def trigger_sync():
+    """Trigger manual sync from SQLite to ChromaDB"""
+    try:
+        sync_db_to_vector()
+        return {"message": "Sync completed successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/detect-duplicate", tags=["Business"])
-async def detect_duplicate(description: str):
-    # Sử dụng ChromaDB để tìm kiếm sản phẩm tương tự thay vì Mock data
+async def detect_duplicate(description: str, user_id: str):
+    # Sử dụng ChromaDB để tìm kiếm sản phẩm tương tự của CHÍNH NGƯỜI DÙNG ĐÓ
     try:
-        results = vector_db.query(query_texts=[description], n_results=1)
+        # Thêm filter where={"user_id": user_id} để cách ly dữ liệu
+        results = vector_db.query(
+            query_texts=[description], 
+            n_results=1,
+            where={"user_id": user_id}
+        )
         if results and results['documents'] and results['documents'][0]:
-            # ChromaDB trả về distance (càng nhỏ càng giống), ta chuyển thành score (0-1)
-            # Giả sử distance 0 là score 1, distance 1.0 là score 0
             distance = results['distances'][0][0]
             score = max(0, 1 - distance)
             matched_text = results['documents'][0][0]
             
-            # Ngưỡng (threshold) để coi là trùng lặp
             if score > 0.7:
                 return {
                     "id": results['ids'][0][0],
@@ -234,7 +347,7 @@ async def detect_duplicate(description: str):
                     "score": float(score),
                     "semantic_score": float(score),
                     "lexical_score": 0.0,
-                    "match_type": "ChromaDB-Semantic"
+                    "match_type": "ChromaDB-User-Specific"
                 }
     except Exception as e:
         print(f"Vector search error: {e}")
