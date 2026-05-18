@@ -2,13 +2,12 @@ import streamlit as st
 import requests
 import io
 from PIL import Image
-from views.map_view import render_map_view
 
 # Cấu hình trang
 st.set_page_config(
     page_title="Smart Shopping System",
     page_icon="🛍️",
-    layout="wide",
+    layout="centered",
     initial_sidebar_state="expanded"
 )
 
@@ -24,15 +23,20 @@ if 'chat_messages' not in st.session_state:
 if 'current_shop' not in st.session_state:
     st.session_state['current_shop'] = None
 
-def login_section():
-    st.sidebar.title("🔐 Xác thực")
-    if not st.session_state['auth']['is_logged_in']:
-        auth_mode = st.sidebar.radio("Chế độ", ["Đăng nhập", "Đăng ký"])
-        email = st.sidebar.text_input("Email")
-        password = st.sidebar.text_input("Mật khẩu", type="password")
+def login_page():
+    # Sử dụng columns để căn giữa form đăng nhập
+    empty_l, col, empty_r = st.columns([1, 2, 1])
+    
+    with col:
+        st.title("🛍️ Hệ thống SSS")
+        st.subheader("Vui lòng đăng nhập")
         
-        if auth_mode == "Đăng nhập":
-            if st.sidebar.button("Đăng nhập"):
+        tab1, tab2 = st.tabs(["Đăng nhập", "Đăng ký"])
+        
+        with tab1:
+            email = st.text_input("Email", key="login_email")
+            password = st.text_input("Mật khẩu", type="password", key="login_password")
+            if st.button("Đăng nhập", use_container_width=True):
                 try:
                     res = requests.post(f"{API_BASE_URL}/login", json={"email": email, "password": password})
                     if res.status_code == 200:
@@ -43,46 +47,59 @@ def login_section():
                             "token": data['token'],
                             "uid": data['uid']
                         }
-                        st.sidebar.success(f"Chào mừng, {email}!")
+                        st.success(f"Chào mừng, {email}!")
                         st.rerun()
                     else:
-                        st.sidebar.error(f"Sai email hoặc mật khẩu: {res.json().get('detail', 'Unknown error')}")
+                        st.error(f"Sai email hoặc mật khẩu: {res.json().get('detail', 'Unknown error')}")
                 except Exception as e:
-                    st.sidebar.error(f"Không thể kết nối Backend: {e}")
-        else:
-            if st.sidebar.button("Đăng ký"):
+                    st.error(f"Không thể kết nối Backend: {e}")
+        
+        with tab2:
+            reg_email = st.text_input("Email", key="reg_email")
+            reg_password = st.text_input("Mật khẩu", type="password", key="reg_password")
+            if st.button("Đăng ký", use_container_width=True):
                 try:
-                    res = requests.post(f"{API_BASE_URL}/register", json={"email": email, "password": password})
+                    res = requests.post(f"{API_BASE_URL}/register", json={"email": reg_email, "password": reg_password})
                     if res.status_code == 200:
-                        st.sidebar.success("Đăng ký thành công! Hãy đăng nhập.")
+                        st.success("Đăng ký thành công! Hãy đăng nhập.")
                     else:
-                        st.sidebar.error("Lỗi đăng ký: " + res.json().get('detail', ''))
+                        st.error("Lỗi đăng ký: " + res.json().get('detail', ''))
                 except Exception as e:
-                    st.sidebar.error(f"Không thể kết nối Backend: {e}")
-    else:
-        st.sidebar.write(f"👤 Đang đăng nhập: **{st.session_state['auth']['user_id']}**")
-        if st.sidebar.button("Đăng xuất"):
-            st.session_state['auth'] = {"is_logged_in": False, "user_id": None, "token": None}
-            st.rerun()
+                    st.error(f"Không thể kết nối Backend: {e}")
 
 def main():
-    login_section()
+    if not st.session_state['auth']['is_logged_in']:
+        login_page()
+        return
+
+    # Sidebar for Logged in users
+    st.sidebar.title("🛍️ SSS Menu")
+    st.sidebar.write(f"👤 **{st.session_state['auth']['user_id']}**")
+    if st.sidebar.button("Đăng xuất"):
+        st.session_state['auth'] = {"is_logged_in": False, "user_id": None, "token": None}
+        st.rerun()
     
     st.sidebar.markdown("---")
-    menu = ["📍 Bản đồ", "💬 Chatbot", "📝 Ghi nhận mua sắm", "🔍 Tìm kiếm thông minh", "🛡️ Kiểm tra trùng lặp"]
+    menu = ["💬 Chatbot", "📝 Ghi nhận mua sắm", "🔍 Tìm kiếm thông minh", "🛡️ Kiểm tra trùng lặp"]
     choice = st.sidebar.radio("Điều hướng", menu)
+    
+    st.sidebar.markdown("---")
+    st.sidebar.write("🛠️ **Hệ thống**")
+    if st.sidebar.button("Đồng bộ dữ liệu (Sync)"):
+        with st.spinner("Đang đồng bộ..."):
+            try:
+                res = requests.post(f"{API_BASE_URL}/sync")
+                if res.status_code == 200:
+                    st.sidebar.success("Đồng bộ thành công!")
+                else:
+                    st.sidebar.error("Lỗi đồng bộ.")
+            except:
+                st.sidebar.error("Lỗi kết nối.")
     
     st.sidebar.markdown("---")
     st.sidebar.info("Hệ thống Mua sắm Thông minh (SSS)")
 
-    if not st.session_state['auth']['is_logged_in'] and choice != "📍 Bản đồ":
-        st.warning("⚠️ Vui lòng đăng nhập để sử dụng tính năng này.")
-        return
-
-    if choice == "📍 Bản đồ":
-        render_map_view()
-        
-    elif choice == "💬 Chatbot":
+    if choice == "💬 Chatbot":
         st.title("💬 Chatbot Trợ lý Mua sắm")
         for msg in st.session_state['chat_messages']:
             with st.chat_message(msg["role"]):
@@ -121,35 +138,55 @@ def main():
 
     elif choice == "🔍 Tìm kiếm thông minh":
         st.title("🔍 Tìm kiếm & Phân tích hình ảnh")
-        tab1, tab2 = st.tabs(["Scan sản phẩm (Gemini)", "Tìm kiếm hình ảnh (CLIP)"])
         
-        with tab1:
+        tab_search, tab_analyze = st.tabs(["Tìm kiếm bằng ảnh", "Phân tích Gemini"])
+        
+        with tab_search:
+            st.subheader("Tìm kiếm sản phẩm tương tự (ChromaDB)")
+            search_img = st.file_uploader("Tải ảnh sản phẩm để tìm", type=['jpg','png'], key="search_img")
+            if search_img:
+                st.image(search_img, width=200)
+                if st.button("Tìm kiếm sản phẩm"):
+                    with st.spinner("Đang tìm kiếm..."):
+                        res = requests.post(f"{API_BASE_URL}/visual-search", files={"file": search_img.getvalue()})
+                        if res.status_code == 200:
+                            products = res.json().get("products", [])
+                            if products:
+                                for p in products:
+                                    with st.container():
+                                        col_a, col_b = st.columns([3, 1])
+                                        with col_a:
+                                            st.write(f"**{p['name']}**")
+                                            st.write(f"Giá: {p['price']:,.0f} VNĐ")
+                                            st.caption(f"📍 {p['shop_name']} - {p['shop_address']}")
+                                        with col_b:
+                                            st.metric("Score", f"{p['score']*100:.1f}%")
+                                        st.divider()
+                            else:
+                                st.info("Không tìm thấy sản phẩm tương ứng.")
+                        else:
+                            st.error("Lỗi tìm kiếm.")
+
+        with tab_analyze:
             st.subheader("Phân tích chi tiết bằng Gemini AI")
-            img_file = st.file_uploader("Tải ảnh sản phẩm", type=['jpg','png'], key="gemini")
+            img_file = st.file_uploader("Tải ảnh sản phẩm để mô tả", type=['jpg','png'], key="gemini")
             if img_file:
                 st.image(img_file, width=300)
                 if st.button("Phân tích ngay"):
                     res = requests.post(f"{API_BASE_URL}/scan-product", files={"file": img_file.getvalue()})
                     st.write(res.json().get("analysis", ""))
 
-        with tab2:
-            st.subheader("Trích xuất Vector bằng CLIP Model")
-            img_search = st.file_uploader("Tải ảnh để tìm sản phẩm tương đồng", type=['jpg','png'], key="clip")
-            if img_search:
-                st.image(img_search, width=300)
-                if st.button("Trích xuất Vector"):
-                    res = requests.post(f"{API_BASE_URL}/visual-search", files={"file": img_search.getvalue()})
-                    data = res.json()
-                    st.json(data)
-
     elif choice == "🛡️ Kiểm tra trùng lặp":
         st.title("🛡️ Kiểm tra trùng lặp sản phẩm")
         st.write("Sử dụng AI để phát hiện sản phẩm đã tồn tại (Semantic & Lexical).")
         
-        input_text = st.text_input("Nhập tên sản phẩm cần kiểm tra", placeholder="Ví dụ: Sữa Vinamilk 180ml")
+        input_text = st.text_input("Nhập tên sản phẩm cần kiểm tra", placeholder="Ví dụ: Bánh trung thu")
         if st.button("Kiểm tra ngay"):
             with st.spinner("Đang đối soát..."):
-                res = requests.post(f"{API_BASE_URL}/detect-duplicate", params={"description": input_text})
+                res = requests.post(f"{API_BASE_URL}/detect-duplicate", params={
+                    "description": input_text,
+                    "user_id": st.session_state['auth']['user_id']
+                })
                 if res.status_code == 200:
                     result = res.json()
                     score = result['score']
