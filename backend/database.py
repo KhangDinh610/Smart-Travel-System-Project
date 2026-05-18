@@ -27,6 +27,7 @@ class Product(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
     description = Column(String)
+    price = Column(Float)
     vector_json = Column(String)  # Store vector as JSON string for SQLite
     shop_id = Column(Integer, ForeignKey("shops.id"))
 

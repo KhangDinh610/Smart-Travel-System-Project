@@ -1,4 +1,5 @@
 import os
+import sys
 import firebase_admin
 from firebase_admin import credentials
 from fastapi import FastAPI
@@ -10,6 +11,10 @@ load_dotenv()
 
 # Get base directory of the backend folder
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Add BASE_DIR to sys.path to ensure local modules can be imported
+if BASE_DIR not in sys.path:
+    sys.path.append(BASE_DIR)
 
 def initialize_firebase():
     if not firebase_admin._apps:
