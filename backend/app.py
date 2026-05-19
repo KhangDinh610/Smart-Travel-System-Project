@@ -1,5 +1,6 @@
 import streamlit as st
 
+from vector_db import vector_db
 from visual_search import ImageVectorExtractor
 
 
@@ -17,7 +18,7 @@ def get_extractor() -> ImageVectorExtractor:
 
 def main() -> None:
     st.title("BE2 Image-to-Vector Demo")
-    st.write("Upload an image to preprocess and extract a 512-dim vector.")
+    st.write("Upload an image to preprocess, extract CLIP vector, and retrieve products.")
 
     uploaded_file = st.file_uploader("Upload image", type=["jpg", "jpeg", "png"])
     if not uploaded_file:
@@ -32,16 +33,45 @@ def main() -> None:
         st.subheader("Original")
         st.image(original_image, use_container_width=True)
     with col2:
-        st.subheader("Processed (OpenCV)")
+        st.subheader("Processed")
         st.image(processed_image, use_container_width=True)
 
     with st.spinner("Extracting features..."):
         vector = extractor.extract_vector(processed_image)
 
-    st.subheader("Vector Output")
-    st.write(f"Vector shape: {vector.shape}")
-    st.write("Vector preview (first 20 values):")
-    st.json(vector[:20].tolist())
+    with st.spinner("Searching in VectorDB..."):
+        results = vector_db.query_image_embeddings([vector.tolist()], n_results=5)
+
+    st.subheader("Search Results")
+    if not results or not results.get("ids") or not results["ids"][0]:
+        st.warning("No results found in ChromaDB image collection.")
+        return
+
+    rows = []
+    ids = results.get("ids", [[]])[0]
+    metadatas = results.get("metadatas", [[]])[0]
+    distances = results.get("distances", [[]])[0]
+
+    for idx, item_id in enumerate(ids):
+        metadata = metadatas[idx] if idx < len(metadatas) else {}
+        distance = distances[idx] if idx < len(distances) else None
+        score = None
+        if isinstance(distance, (int, float)):
+            score = max(0.0, 1.0 - float(distance))
+
+        rows.append(
+            {
+                "id": item_id,
+                "name": metadata.get("name", "N/A"),
+                "description": metadata.get("description", "N/A"),
+                "price": metadata.get("price", "N/A"),
+                "shop": metadata.get("shop_name", metadata.get("shop", "N/A")),
+                "shop_address": metadata.get("shop_address", "N/A"),
+                "similarity": score,
+            }
+        )
+
+    st.dataframe(rows, use_container_width=True)
 
 
 if __name__ == "__main__":
