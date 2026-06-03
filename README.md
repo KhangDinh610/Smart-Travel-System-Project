@@ -20,21 +20,7 @@ SouvenirAI là một ứng dụng hỗ trợ mua sắm thông minh sử dụng A
 
 ## 📦 Hướng dẫn cài đặt và chạy
 
-### 1. Yêu cầu hệ thống
-- Docker và Docker Compose.
-- File `.env` và các tệp cấu hình Firebase trong thư mục `backend/`.
-
-### 2. Chạy ứng dụng bằng Docker (Khuyên dùng)
-
-Hợp nhất toàn bộ hệ thống vào một cổng duy nhất (8000).
-
-```bash
-docker-compose up --build
-```
-
-Truy cập: `http://localhost:8000`
-
-### 3. Cài đặt thủ công (Dành cho nhà phát triển)
+### 1. Cài đặt thủ công (Dành cho nhà phát triển)
 
 **Backend:**
 ```bash
