@@ -102,7 +102,7 @@ export function LoginScreen({ tr, lang, setLang, onLogin }: LoginScreenProps) {
     setErrors({});
     try {
       if (tab === "signup") {
-        await api.register(email, password);
+        await api.register(email, password, name);
         // Automatically login after register
         const userRes = await api.login(email, password);
         onLogin({ ...userRes, is_new_user: true });
@@ -121,12 +121,14 @@ export function LoginScreen({ tr, lang, setLang, onLogin }: LoginScreenProps) {
     setIsLoading(true);
     setErrors({});
     try {
+      const { getAdditionalUserInfo } = await import("firebase/auth");
       const result = await signInWithPopup(auth, googleProvider);
       const token = await result.user.getIdToken();
+      const isNewUser = getAdditionalUserInfo(result)?.isNewUser;
       
       // Use a new API method for Firebase token login
       const userRes = await api.loginWithFirebase(token);
-      onLogin(userRes);
+      onLogin({ ...userRes, is_new_user: isNewUser });
     } catch (error: any) {
       console.error("Google login error", error);
       setErrors({ form: error.message || "Google login failed" });

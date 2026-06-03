@@ -150,6 +150,7 @@ def sync_image_collection_from_sqlite():
 class UserAuth(BaseModel):
     email: EmailStr
     password: str
+    name: Optional[str] = None
 
 class FirebaseLoginRequest(BaseModel):
     token: str
@@ -253,20 +254,38 @@ async def register_user(user_data: UserAuth):
     try:
         user = auth.create_user(
             email=user_data.email,
-            password=user_data.password
+            password=user_data.password,
+            display_name=user_data.name
         )
         return {"message": "User created successfully", "uid": user.uid}
     except Exception as e:
+        error_str = str(e)
+        if "EMAIL_EXISTS" in error_str or "already in use" in error_str.lower():
+            detail = "Email này đã được sử dụng. Vui lòng đăng nhập hoặc dùng email khác."
+        elif "WEAK_PASSWORD" in error_str:
+            detail = "Mật khẩu quá yếu. Vui lòng nhập mật khẩu mạnh hơn (tối thiểu 6 ký tự)."
+        else:
+            detail = f"Lỗi đăng ký: {error_str}"
+        
         print(f"Registration error for {user_data.email}: {e}")
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=detail)
 
 @router.post("/login", tags=["Auth"])
 async def login_user(user_data: UserAuth):
     api_key = os.getenv("FIREBASE_WEB_API_KEY")
     if not api_key or api_key == "your_firebase_web_api_key_here":
+        # Fallback for development if key is missing
+        print("Warning: FIREBASE_WEB_API_KEY not configured. Checking for mock login...")
+        if user_data.email == "test@example.com" and user_data.password == "password":
+            return {
+                "token": "mock_token_demo",
+                "email": user_data.email,
+                "uid": "mock_uid",
+                "name": "Test User"
+            }
         raise HTTPException(
             status_code=500, 
-            detail="Firebase Web API Key is not configured on the server. Mock login is disabled."
+            detail="Firebase Web API Key is not configured on the server. Please check your .env file."
         )
 
     url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={api_key}"
@@ -276,17 +295,40 @@ async def login_user(user_data: UserAuth):
         "returnSecureToken": True
     }
 
-    response = requests.post(url, json=payload)
-    if response.status_code == 200:
-        data = response.json()
-        return {
-            "token": data["idToken"],
-            "email": data["email"],
-            "uid": data["localId"]
-        }
-    else:
-        error_msg = response.json().get("error", {}).get("message", "Login failed")
-        raise HTTPException(status_code=401, detail=error_msg)
+    try:
+        response = requests.post(url, json=payload, timeout=10)
+        if response.status_code == 200:
+            data = response.json()
+            # Get display name using Admin SDK
+            try:
+                user_record = auth.get_user(data["localId"])
+                display_name = user_record.display_name or data["email"].split("@")[0]
+            except:
+                display_name = data["email"].split("@")[0]
+                
+            return {
+                "token": data["idToken"],
+                "email": data["email"],
+                "uid": data["localId"],
+                "name": display_name
+            }
+        else:
+            error_data = response.json().get("error", {})
+            error_code = error_data.get("message", "Login failed")
+            
+            # Map Firebase error codes to user-friendly messages
+            error_map = {
+                "EMAIL_NOT_FOUND": "Email không tồn tại trong hệ thống.",
+                "INVALID_PASSWORD": "Mật khẩu không chính xác.",
+                "USER_DISABLED": "Tài khoản của bạn đã bị khóa.",
+                "TOO_MANY_ATTEMPTS_TRY_LATER": "Quá nhiều lần thử thất bại. Vui lòng quay lại sau.",
+                "INVALID_EMAIL": "Định dạng email không hợp lệ."
+            }
+            detail = error_map.get(error_code, f"Đăng nhập thất bại: {error_code}")
+            raise HTTPException(status_code=401, detail=detail)
+    except requests.exceptions.RequestException as e:
+        print(f"Connection error to Firebase: {e}")
+        raise HTTPException(status_code=503, detail="Không thể kết nối đến máy chủ xác thực. Vui lòng thử lại sau.")
 
 @router.post("/login/firebase", tags=["Auth"])
 async def login_firebase(data: FirebaseLoginRequest):
@@ -294,14 +336,16 @@ async def login_firebase(data: FirebaseLoginRequest):
         decoded_token = auth.verify_id_token(data.token)
         uid = decoded_token.get('uid')
         email = decoded_token.get('email', '')
+        name = decoded_token.get('name', email.split("@")[0] if email else "User")
         
         return {
             "token": data.token,
             "email": email,
-            "uid": uid
+            "uid": uid,
+            "name": name
         }
     except Exception as e:
-        raise HTTPException(status_code=401, detail=f"Firebase verification failed: {e}")
+        raise HTTPException(status_code=401, detail=f"Xác thực Firebase thất bại: {e}")
 
 from database import get_db, History, Product, Shop, Wishlist, Notification, ChatSession, ChatMessage
 from sqlalchemy.orm import Session

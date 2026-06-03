@@ -4,6 +4,7 @@ export interface User {
   uid: string;
   email: string;
   token?: string;
+  name?: string;
 }
 
 export interface Product {
@@ -66,11 +67,11 @@ const authHeaders = () => ({
 });
 
 export const api = {
-  async register(email: string, password: string): Promise<{ uid: string }> {
+  async register(email: string, password: string, name?: string): Promise<{ uid: string }> {
     const res = await fetch(`${BASE_URL}/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email, password, name }),
     });
     if (!res.ok) {
       let detail = "Action failed";
