@@ -1,0 +1,10 @@
+node_modules
+__pycache__
+.venv
+.env
+.git
+frontend/node_modules
+frontend/dist
+backend/__pycache__
+*.db
+chroma_db
