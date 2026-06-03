@@ -52,9 +52,19 @@ npm run dev
 
 ## 🔒 Bảo mật và Cấu hình
 
-Vui lòng không commit các file chứa secret key. Sử dụng file `.env.example` để tạo file `.env` cá nhân.
+Vui lòng không commit các file chứa secret key. Sử dụng file `.env.example` để tạo file `.env` cá nhân ở thư mục gốc của dự án.
 
 Các file cần bảo mật:
 - `.env`
-- `backend/serviceAccountKey.json`
-- `backend/gcp-vision-key.json`
+- `backend/serviceAccountKey.json` (Tải từ Firebase Console -> Project Settings -> Service Accounts)
+- `backend/gcp-vision-key.json` (Tùy chọn cho Google Vision API)
+
+### ⚠️ Xử lý lỗi API Key
+
+Nếu bạn gặp lỗi **"Missing API Key"** hoặc **"Firebase configuration is invalid"**:
+1. Đảm bảo đã copy `.env.example` thành `.env` tại thư mục gốc.
+2. Kiểm tra file `.env` đã có đầy đủ các biến sau chưa:
+   - `GEMINI_API_KEY`: Lấy tại [Google AI Studio](https://ai.google.dev/gemini-api/docs/api-key).
+   - `VITE_FIREBASE_API_KEY` và các biến `VITE_FIREBASE_*`: Lấy tại Firebase Console -> Project Settings -> General -> Your apps -> Web app.
+3. Nếu chạy Docker, hãy chạy lại lệnh `docker-compose up --build` để cập nhật các biến môi trường vào quá trình build frontend.
+

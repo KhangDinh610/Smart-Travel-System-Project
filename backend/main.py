@@ -6,8 +6,18 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
-# Load environment variables at the very beginning
-load_dotenv()
+# Load environment variables
+# Try to find .env in current dir, then in parent dir
+if not load_dotenv():
+    # If not found in current dir, try parent dir
+    root_env = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env")
+    if os.path.exists(root_env):
+        load_dotenv(root_env)
+        print(f"Loaded environment variables from {root_env}")
+    else:
+        print("Warning: .env file not found. Environment variables might not be set.")
+else:
+    print("Loaded environment variables from .env")
 
 # Get base directory of the backend folder
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -109,10 +119,6 @@ async def health_check():
         "env": os.getenv("APP_ENV", "development"),
         "version": "1.0.0"
     }
-
-@app.get("/", tags=["System"])
-async def root():
-    return {"message": "Welcome to Smart Shopping System API"}
 
 # Serve static files from the frontend build directory
 # This allows the backend to host the frontend on the same port

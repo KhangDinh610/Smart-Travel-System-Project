@@ -28,9 +28,3 @@ docker build -t smart-shopping-app .
 # Chạy container
 docker run -p 8000:8000 --env-file .env smart-shopping-app
 ```
-
-## Các tính năng đã được tối ưu cho Docker:
-- **Multi-stage build:** Giúp giảm kích thước image.
-- **Unified Port:** Cả Frontend và Backend chạy chung port 8000.
-- **Auto-Sync:** Hệ thống tự động đồng bộ Vector DB khi khởi động.
-- **Persistence:** Database và ChromaDB được lưu vào volumes để không mất dữ liệu khi tắt container.

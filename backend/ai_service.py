@@ -5,15 +5,28 @@ from google import genai
 from google.genai import types
 from dotenv import load_dotenv
 
-load_dotenv()
+# Load environment variables
+if not load_dotenv():
+    # If not found in current dir, try parent dir
+    root_env = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env")
+    if os.path.exists(root_env):
+        load_dotenv(root_env)
 
 class GeminiService:
     def __init__(self):
         api_key = os.getenv("GEMINI_API_KEY")
-        if not api_key:
-            print("Warning: GEMINI_API_KEY not found in environment variables.")
-        # Khởi tạo client
-        self.client = genai.Client(api_key=api_key)
+        if not api_key or api_key == "your_gemini_api_key_here":
+            print("\n" + "="*50)
+            print("CRITICAL ERROR: GEMINI_API_KEY is missing or invalid!")
+            print("Please set a valid GEMINI_API_KEY in your .env file.")
+            print("Get one at: https://ai.google.dev/gemini-api/docs/api-key")
+            print("="*50 + "\n")
+            # We don't crash immediately here, but calls will fail
+            self.client = None
+        else:
+            # Khởi tạo client
+            self.client = genai.Client(api_key=api_key)
+        
         # Sử dụng model ổn định (1.5-flash hoặc 2.0-flash-exp)
         self.model_name = 'gemini-1.5-flash'
 
@@ -21,6 +34,10 @@ class GeminiService:
         """
         Hỗ trợ retry khi gặp lỗi 503 hoặc giới hạn tốc độ.
         """
+        if not self.client:
+            print("Gemini client is not initialized due to missing API key.")
+            return ""
+
         if model is None:
             model = self.model_name
             

@@ -257,13 +257,17 @@ async def register_user(user_data: UserAuth):
         )
         return {"message": "User created successfully", "uid": user.uid}
     except Exception as e:
+        print(f"Registration error for {user_data.email}: {e}")
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.post("/login", tags=["Auth"])
 async def login_user(user_data: UserAuth):
     api_key = os.getenv("FIREBASE_WEB_API_KEY")
-    if not api_key:
-        return {"status": "success", "token": "mock_token_demo", "email": user_data.email, "uid": "mock_uid"}
+    if not api_key or api_key == "your_firebase_web_api_key_here":
+        raise HTTPException(
+            status_code=500, 
+            detail="Firebase Web API Key is not configured on the server. Mock login is disabled."
+        )
 
     url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={api_key}"
     payload = {

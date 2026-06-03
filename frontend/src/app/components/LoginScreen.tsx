@@ -102,10 +102,10 @@ export function LoginScreen({ tr, lang, setLang, onLogin }: LoginScreenProps) {
     setErrors({});
     try {
       if (tab === "signup") {
-        const res = await api.register(email, password);
+        await api.register(email, password);
         // Automatically login after register
         const userRes = await api.login(email, password);
-        onLogin(userRes);
+        onLogin({ ...userRes, is_new_user: true });
       } else {
         const userRes = await api.login(email, password);
         onLogin(userRes);

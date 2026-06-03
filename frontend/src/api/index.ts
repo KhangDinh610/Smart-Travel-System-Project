@@ -73,10 +73,17 @@ export const api = {
       body: JSON.stringify({ email, password }),
     });
     if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.detail || "Registration failed");
+      let detail = "Action failed";
+      try {
+        const err = await res.json();
+        detail = err.detail || detail;
+      } catch (e) {
+        console.error("Could not parse error response", e);
+      }
+      throw new Error(detail);
     }
-    return res.json();
+    const text = await res.text();
+    return text ? JSON.parse(text) : {};
   },
 
   async login(email: string, password: string): Promise<User> {
@@ -86,10 +93,17 @@ export const api = {
       body: JSON.stringify({ email, password }),
     });
     if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.detail || "Login failed");
+      let detail = "Login failed";
+      try {
+        const err = await res.json();
+        detail = err.detail || detail;
+      } catch (e) {
+        console.error("Could not parse login error response", e);
+      }
+      throw new Error(detail);
     }
-    return res.json();
+    const text = await res.text();
+    return text ? JSON.parse(text) : {} as User;
   },
 
   async loginWithFirebase(token: string): Promise<User> {
@@ -99,10 +113,17 @@ export const api = {
       body: JSON.stringify({ token }),
     });
     if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.detail || "Firebase login failed");
+      let detail = "Firebase login failed";
+      try {
+        const err = await res.json();
+        detail = err.detail || detail;
+      } catch (e) {
+        console.error("Could not parse firebase login error response", e);
+      }
+      throw new Error(detail);
     }
-    return res.json();
+    const text = await res.text();
+    return text ? JSON.parse(text) : {} as User;
   },
 
   async getProducts(search?: string, category?: string, lang: string = "vi"): Promise<Product[]> {
