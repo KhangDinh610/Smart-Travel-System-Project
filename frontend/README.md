@@ -1,7 +1,7 @@
 
-  # SmartShoppingSystem
+  # BuyAI
 
-  This is a code bundle for SmartShoppingSystem. The original project is available at https://www.figma.com/design/kCexmU42qEmr1CFzI4zihF/SmartShoppingSystem.
+  This is a code bundle for BuyAI. The original project is available at https://www.figma.com/design/kCexmU42qEmr1CFzI4zihF/BuyAI.
 
   ## Running the code
 
