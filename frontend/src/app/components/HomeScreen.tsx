@@ -125,9 +125,17 @@ export function HomeScreen({ tr, lang, setLang, user, savedItems, toggleSave, on
     try {
       const res = await api.scanProduct(file);
       setScanResult(res.analysis);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Scan error", error);
-      setScanResult("Đã có lỗi xảy ra khi phân tích hình ảnh. Vui lòng thử lại sau.");
+      let errorMsg = "Đã có lỗi xảy ra khi phân tích hình ảnh. Vui lòng thử lại sau.";
+      if (error && error.message) {
+         if (error.reset_time) {
+             errorMsg = `⚠️ **${error.message}**\n\n*${error.reset_time}*`;
+         } else {
+             errorMsg = `❌ **Lỗi:** ${error.message}\n${error.technical_details ? `*Chi tiết: ${error.technical_details}*` : ""}`;
+         }
+      }
+      setScanResult(errorMsg);
     }
   };
 

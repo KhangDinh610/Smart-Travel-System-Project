@@ -105,13 +105,24 @@ export function ChatScreen({ tr, lang, setLang, user, onNavigate, initialSession
     try {
       const aiMsg = await api.sendChatMessage(activeSession, text);
       setMessages(prev => [...prev.filter(m => m.id !== tempUserMsg.id), tempUserMsg, aiMsg]);
-    } catch (e) {
+    } catch (e: any) {
       console.error("Failed to send message", e);
+      let errorText = "I am sorry, but I encountered an error. Please try again.";
+      
+      // Parse structured error from backend
+      if (e && e.message) {
+         if (e.reset_time) {
+            errorText = `⚠️ **${e.message}**\n\n*${e.reset_time}*`;
+         } else {
+            errorText = `❌ **Lỗi:** ${e.message}\n${e.technical_details ? `*Chi tiết: ${e.technical_details}*` : ""}`;
+         }
+      }
+
       setMessages(prev => [...prev, {
         id: Date.now() + 1,
         session_id: activeSession,
         sender: "ai",
-        text: "I am sorry, but I encountered an error. Please try again.",
+        text: errorText,
         timestamp: new Date().toISOString()
       }]);
     } finally {
@@ -197,25 +208,18 @@ export function ChatScreen({ tr, lang, setLang, user, onNavigate, initialSession
             ))}
           </div>
         </div>
-
-        <div className="mt-auto p-4 border-t border-white/10">
-           <button onClick={() => onNavigate("home")} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5" style={{ color: "rgba(255,255,255,0.6)", fontSize: "14px" }}>
-            <Home size={17} /> {lang === "vi" ? "Về Trang Chủ" : "Back to Home"}
-          </button>
-        </div>
       </aside>
 
       {/* ── Main Chat Area ── */}
       <div className="flex-1 flex flex-col min-w-0 h-full relative">
         
-        {/* Header */}
         <header className="flex items-center justify-between px-6 py-4 bg-white border-b border-[#F5CBA7] sticky top-0 z-10">
           <div className="flex items-center gap-4">
+            <button onClick={() => onNavigate("home")} className="flex items-center justify-center p-2 rounded-xl hover:bg-orange-50 text-[#E2714A]">
+               <ArrowLeft size={20} />
+            </button>
             <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="hidden lg:flex items-center justify-center p-2 rounded-xl hover:bg-orange-50 text-[#E2714A]">
               <Menu size={20} />
-            </button>
-            <button onClick={() => onNavigate("home")} className="lg:hidden flex items-center justify-center p-2 rounded-xl hover:bg-orange-50 text-[#E2714A]">
-               <ArrowLeft size={20} />
             </button>
             <div>
               <h2 style={{ color: "#3D2314", fontWeight: 800, fontSize: "16px" }}>

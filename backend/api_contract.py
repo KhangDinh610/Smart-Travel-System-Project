@@ -8,7 +8,7 @@ import io
 import requests
 import os
 from detector_logic import DuplicateDetector
-from ai_service import gemini_service
+from ai_service import gemini_service, GeminiError, GeminiQuotaError
 from visual_search import ImageVectorExtractor
 from vector_db import vector_db  # Import vector_db
 from translation_utils import smart_translate_name
@@ -395,7 +395,12 @@ async def send_chat_message(session_id: int, message_data: ChatMessageCreate, db
     except Exception as e:
         print(f"RAG Error: {e}")
 
-    ai_reply_text = await gemini_service.get_chat_response(message_data.text, context=context)
+    try:
+        ai_reply_text = await gemini_service.get_chat_response(message_data.text, context=context)
+    except GeminiQuotaError as eq:
+        raise HTTPException(status_code=429, detail={"message": eq.message, "reset_time": eq.reset_time_msg})
+    except GeminiError as eg:
+        raise HTTPException(status_code=500, detail={"message": eg.message, "technical_details": eg.details})
     
     # Save AI message
     ai_msg = ChatMessage(session_id=session_id, sender="ai", text=ai_reply_text)
@@ -673,7 +678,12 @@ async def chat(request: ChatRequest, user: dict = Depends(verify_firebase_token)
     except Exception as e:
         print(f"RAG Error: {e}")
 
-    reply = await gemini_service.get_chat_response(request.message, context=context)
+    try:
+        reply = await gemini_service.get_chat_response(request.message, context=context)
+    except GeminiQuotaError as eq:
+        raise HTTPException(status_code=429, detail={"message": eq.message, "reset_time": eq.reset_time_msg})
+    except GeminiError as eg:
+        raise HTTPException(status_code=500, detail={"message": eg.message, "technical_details": eg.details})
     return {"reply": reply}
 
 @router.post("/history", response_model=HistoryResponse, tags=["Business"])
@@ -771,7 +781,12 @@ async def get_notifications(user_id: str, db: Session = Depends(get_db)):
 @router.post("/scan-product", tags=["Business"])
 async def scan_product(file: UploadFile = File(...)):
     contents = await file.read()
-    analysis = await gemini_service.analyze_product_image(contents)
+    try:
+        analysis = await gemini_service.analyze_product_image(contents)
+    except GeminiQuotaError as eq:
+        raise HTTPException(status_code=429, detail={"message": eq.message, "reset_time": eq.reset_time_msg})
+    except GeminiError as eg:
+        raise HTTPException(status_code=500, detail={"message": eg.message, "technical_details": eg.details})
     return {"analysis": analysis}
 
 @router.post("/visual-search", tags=["Business"])

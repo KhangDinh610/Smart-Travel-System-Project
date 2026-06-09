@@ -66,6 +66,22 @@ const authHeaders = () => ({
   "Authorization": `Bearer ${getToken()}`
 });
 
+const handleApiError = async (res: Response, defaultMessage: string) => {
+  try {
+    const errData = await res.json();
+    if (errData.detail && typeof errData.detail === 'object' && errData.detail.message) {
+      // Throw the detail object directly so UI can access message and reset_time
+      return Promise.reject(errData.detail);
+    }
+    if (typeof errData.detail === 'string') {
+      return Promise.reject(new Error(errData.detail));
+    }
+  } catch (e) {
+    // fallback if not JSON
+  }
+  return Promise.reject(new Error(defaultMessage));
+};
+
 export const api = {
   async register(email: string, password: string, name?: string): Promise<{ uid: string }> {
     const res = await fetch(`${BASE_URL}/register`, {
@@ -163,7 +179,7 @@ export const api = {
       headers: authHeaders(),
       body: JSON.stringify({ message, user_id: userId }),
     });
-    if (!res.ok) throw new Error("Chat failed");
+    if (!res.ok) throw await handleApiError(res, "Chat failed");
     return res.json();
   },
 
@@ -199,7 +215,7 @@ export const api = {
       headers: authHeaders(),
       body: JSON.stringify({ text }),
     });
-    if (!res.ok) throw new Error("Failed to send chat message");
+    if (!res.ok) throw await handleApiError(res, "Failed to send chat message");
     return res.json();
   },
 
@@ -255,7 +271,7 @@ export const api = {
       method: "POST",
       body: formData,
     });
-    if (!res.ok) throw new Error("Product scan failed");
+    if (!res.ok) throw await handleApiError(res, "Product scan failed");
     return res.json();
   },
 
