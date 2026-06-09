@@ -58,7 +58,7 @@ export function OnboardingScreen({ tr, lang, setLang, onComplete, onLogout }: On
             <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(255,255,255,0.15)" }}>
               <Compass size={18} color="white" />
             </div>
-            <span style={{ color: "white", fontSize: "18px", fontWeight: 800 }}>BuyAI</span>
+            <span style={{ color: "white", fontSize: "18px", fontWeight: 800 }}>SouvenirAI</span>
           </div>
           <LangToggle lang={lang} setLang={setLang} />
         </div>
@@ -113,7 +113,7 @@ export function OnboardingScreen({ tr, lang, setLang, onComplete, onLogout }: On
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Compass size={20} style={{ color: "#E2714A" }} />
-              <span style={{ color: "#3D2314", fontWeight: 800, fontSize: "17px" }}>BuyAI</span>
+              <span style={{ color: "#3D2314", fontWeight: 800, fontSize: "17px" }}>SouvenirAI</span>
             </div>
             <div className="flex items-center gap-3">
               <button onClick={onLogout} style={{ color: "#7A4528" }}>

@@ -6,7 +6,6 @@ import { type Lang, type Translations } from "../translations";
 import { api, type User } from "../../api";
 import { auth, googleProvider } from "../firebase";
 import { signInWithPopup } from "firebase/auth";
-import vietnamImg from "@/assets/VIETNAM.svg";
 
 interface LoginScreenProps {
   tr: Translations["login"];
@@ -154,9 +153,9 @@ export function LoginScreen({ tr, lang, setLang, onLogin }: LoginScreenProps) {
       >
         <div className="absolute inset-0">
           <ImageWithFallback
-            src={vietnamImg}
+            src="https://images.unsplash.com/photo-1764577327260-e4bd407cadda?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0cmF2ZWwlMjBzb3V2ZW5pciUyMGxvY2FsJTIwbWFya2V0JTIwYXNpYXxlbnwxfHx8fDE3NzkyMDMzNjB8MA&ixlib=rb-4.1.0&q=80&w=1080"
             alt="Market"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover opacity-25"
           />
         </div>
 
@@ -166,7 +165,7 @@ export function LoginScreen({ tr, lang, setLang, onLogin }: LoginScreenProps) {
               <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(255,255,255,0.2)", backdropFilter: "blur(8px)" }}>
                 <Compass size={22} color="white" />
               </div>
-              <span style={{ color: "white", fontSize: "22px", fontWeight: 800, letterSpacing: "-0.5px" }}>BuyAI</span>
+              <span style={{ color: "white", fontSize: "22px", fontWeight: 800, letterSpacing: "-0.5px" }}>SouvenirAI</span>
             </div>
             <LangToggleLight lang={lang} setLang={setLang} />
           </div>
@@ -191,7 +190,7 @@ export function LoginScreen({ tr, lang, setLang, onLogin }: LoginScreenProps) {
             </div>
           </div>
 
-          <p style={{ color: "rgba(255,255,255,0.3)", fontSize: "12px" }}>© 2026 BuyAI</p>
+          <p style={{ color: "rgba(255,255,255,0.3)", fontSize: "12px" }}>© 2026 SouvenirAI</p>
         </div>
       </div>
 
@@ -206,7 +205,7 @@ export function LoginScreen({ tr, lang, setLang, onLogin }: LoginScreenProps) {
             <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "#E2714A" }}>
               <Compass size={20} color="white" />
             </div>
-            <span style={{ color: "#3D2314", fontSize: "20px", fontWeight: 800 }}>BuyAI</span>
+            <span style={{ color: "#3D2314", fontSize: "20px", fontWeight: 800 }}>SouvenirAI</span>
           </div>
           <LangToggle lang={lang} setLang={setLang} />
         </div>
