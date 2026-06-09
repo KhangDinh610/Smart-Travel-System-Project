@@ -221,14 +221,6 @@ export function HomeScreen({ tr, lang, setLang, user, savedItems, toggleSave, on
           <LangToggle lang={lang} setLang={setLang} />
         </div>
 
-        <div className="px-4 mb-5">
-          <button className="w-full flex items-center gap-2 px-4 py-3 rounded-xl" style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.12)" }}>
-            <MapPin size={14} style={{ color: "#F4A261" }} />
-            <span style={{ color: "white", fontSize: "13px", fontWeight: 600, flex: 1, textAlign: "left" }}>Hội An, Việt Nam</span>
-            <ChevronDown size={13} style={{ color: "rgba(255,255,255,0.5)" }} />
-          </button>
-        </div>
-
         <nav className="flex flex-col gap-1 px-3">
           {navItems.map(({ id, icon: Icon, label }) => {
             const isActive = activeNav === id;
@@ -357,13 +349,12 @@ export function HomeScreen({ tr, lang, setLang, user, savedItems, toggleSave, on
               <LangToggle lang={lang} setLang={setLang} />
             </div>
 
-            <button className="w-9 h-9 rounded-full overflow-hidden" style={{ border: "2px solid #E2714A" }}>
-              <ImageWithFallback
-                src="https://images.unsplash.com/photo-1764577327260-e4bd407cadda?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0cmF2ZWwlMjBzb3V2ZW5pciUyMGxvY2FsJTIwbWFya2V0JTIwYXNpYXxlbnwxfHx8fDE3NzkyMDMzNjB8MA&ixlib=rb-4.1.0&q=80&w=80"
-                alt="avatar"
-                className="w-full h-full object-cover"
-              />
-            </button>
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl" style={{ background: "#FEF0EA", border: "1.5px solid #F5CBA7" }}>
+              <User size={14} style={{ color: "#E2714A" }} />
+              <span style={{ color: "#3D2314", fontSize: "13px", fontWeight: 700 }}>
+                {user?.name || user?.email?.split('@')[0] || (lang === 'vi' ? 'Khách' : 'Guest')}
+              </span>
+            </div>
           </div>
         </header>
 

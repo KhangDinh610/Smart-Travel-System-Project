@@ -17,7 +17,7 @@ export default function App() {
     return saved ? JSON.parse(saved) : null;
   });
   const [screen, setScreen] = useState<Screen>(user ? "home" : "login");
-  const [lang, setLang] = useState<Lang>("en");
+  const [lang, setLang] = useState<Lang>("vi");
   const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
   const [savedItems, setSavedItems] = useState<Set<number>>(new Set());
   const [initialChatSession, setInitialChatSession] = useState<number | undefined>();
