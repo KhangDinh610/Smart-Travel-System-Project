@@ -216,7 +216,7 @@ export function HomeScreen({ tr, lang, setLang, user, savedItems, toggleSave, on
             <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "rgba(255,255,255,0.15)" }}>
               <Compass size={18} color="white" />
             </div>
-            <span style={{ color: "white", fontSize: "18px", fontWeight: 800 }}>SouvenirAI</span>
+            <span style={{ color: "white", fontSize: "18px", fontWeight: 800 }}>BuyAI</span>
           </div>
           <LangToggle lang={lang} setLang={setLang} />
         </div>

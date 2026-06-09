@@ -158,7 +158,7 @@ export function ChatScreen({ tr, lang, setLang, user, onNavigate, initialSession
             <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "rgba(255,255,255,0.15)" }}>
               <Sparkles size={18} color="white" />
             </div>
-            <span style={{ color: "white", fontSize: "18px", fontWeight: 800 }}>AI Travel Chat</span>
+            <span style={{ color: "white", fontSize: "18px", fontWeight: 800 }}>BuyAI Assistant</span>
           </div>
         </div>
 

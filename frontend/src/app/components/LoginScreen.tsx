@@ -6,6 +6,7 @@ import { type Lang, type Translations } from "../translations";
 import { api, type User } from "../../api";
 import { auth, googleProvider } from "../firebase";
 import { signInWithPopup } from "firebase/auth";
+import vietnamSvg from "@/assets/VIETNAM.svg";
 
 interface LoginScreenProps {
   tr: Translations["login"];
@@ -103,7 +104,6 @@ export function LoginScreen({ tr, lang, setLang, onLogin }: LoginScreenProps) {
     try {
       if (tab === "signup") {
         await api.register(email, password, name);
-        // Automatically login after register
         const userRes = await api.login(email, password);
         onLogin({ ...userRes, is_new_user: true });
       } else {
@@ -126,7 +126,6 @@ export function LoginScreen({ tr, lang, setLang, onLogin }: LoginScreenProps) {
       const token = await result.user.getIdToken();
       const isNewUser = getAdditionalUserInfo(result)?.isNewUser;
       
-      // Use a new API method for Firebase token login
       const userRes = await api.loginWithFirebase(token);
       onLogin({ ...userRes, is_new_user: isNewUser });
     } catch (error: any) {
@@ -146,16 +145,15 @@ export function LoginScreen({ tr, lang, setLang, onLogin }: LoginScreenProps) {
   return (
     <div className="min-h-screen w-full flex">
 
-      {/* ── Left panel — hero (desktop only) ── */}
       <div
         className="hidden lg:flex lg:w-1/2 xl:w-3/5 relative flex-col"
         style={{ background: "linear-gradient(145deg, #3D2314 0%, #6B3A2A 55%, #E2714A 100%)" }}
       >
         <div className="absolute inset-0">
-          <ImageWithFallback
-            src="https://images.unsplash.com/photo-1764577327260-e4bd407cadda?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0cmF2ZWwlMjBzb3V2ZW5pciUyMGxvY2FsJTIwbWFya2V0JTIwYXNpYXxlbnwxfHx8fDE3NzkyMDMzNjB8MA&ixlib=rb-4.1.0&q=80&w=1080"
-            alt="Market"
-            className="w-full h-full object-cover opacity-25"
+          <img
+            src={vietnamSvg}
+            alt="Vietnam Map"
+            className="w-full h-full object-cover opacity-40"
           />
         </div>
 
@@ -165,7 +163,7 @@ export function LoginScreen({ tr, lang, setLang, onLogin }: LoginScreenProps) {
               <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(255,255,255,0.2)", backdropFilter: "blur(8px)" }}>
                 <Compass size={22} color="white" />
               </div>
-              <span style={{ color: "white", fontSize: "22px", fontWeight: 800, letterSpacing: "-0.5px" }}>SouvenirAI</span>
+              <span style={{ color: "white", fontSize: "22px", fontWeight: 800, letterSpacing: "-0.5px" }}>BuyAI</span>
             </div>
             <LangToggleLight lang={lang} setLang={setLang} />
           </div>
@@ -179,44 +177,31 @@ export function LoginScreen({ tr, lang, setLang, onLogin }: LoginScreenProps) {
                 {tr.heroSubtitle}
               </p>
             </div>
-
-            <div className="flex flex-col gap-3 mt-2">
-              {testimonials.map((t, i) => (
-                <div key={i} className="p-4 rounded-2xl" style={{ background: "rgba(255,255,255,0.11)", backdropFilter: "blur(12px)", border: "1px solid rgba(255,255,255,0.14)" }}>
-                  <p style={{ color: "rgba(255,255,255,0.88)", fontSize: "13px", lineHeight: 1.65 }}>"{t.text}"</p>
-                  <p className="mt-2" style={{ color: "rgba(255,255,255,0.48)", fontSize: "12px", fontWeight: 600 }}>— {t.author} {t.country}</p>
-                </div>
-              ))}
-            </div>
           </div>
 
-          <p style={{ color: "rgba(255,255,255,0.3)", fontSize: "12px" }}>© 2026 SouvenirAI</p>
+          <p style={{ color: "rgba(255,255,255,0.3)", fontSize: "12px" }}>© 2026 BuyAI</p>
         </div>
       </div>
 
-      {/* ── Right panel — form ── */}
       <div
         className="w-full lg:w-1/2 xl:w-2/5 flex flex-col justify-center px-6 sm:px-10 lg:px-14 py-10"
         style={{ background: "#FDF3EB", minHeight: "100vh" }}
       >
-        {/* Mobile top bar */}
         <div className="flex lg:hidden items-center justify-between mb-8">
           <div className="flex items-center gap-2">
             <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "#E2714A" }}>
               <Compass size={20} color="white" />
             </div>
-            <span style={{ color: "#3D2314", fontSize: "20px", fontWeight: 800 }}>SouvenirAI</span>
+            <span style={{ color: "#3D2314", fontSize: "20px", fontWeight: 800 }}>BuyAI</span>
           </div>
           <LangToggle lang={lang} setLang={setLang} />
         </div>
 
         <div className="w-full max-w-sm mx-auto">
-          {/* Desktop lang toggle */}
           <div className="hidden lg:flex justify-end mb-6">
             <LangToggle lang={lang} setLang={setLang} />
           </div>
 
-          {/* Tab switcher */}
           <div className="flex rounded-2xl p-1.5 mb-7" style={{ background: "#F5CBA7" }}>
             {([["signin", tr.tabSignIn], ["signup", tr.tabSignUp]] as const).map(([key, label]) => (
               <button
@@ -236,7 +221,6 @@ export function LoginScreen({ tr, lang, setLang, onLogin }: LoginScreenProps) {
             ))}
           </div>
 
-          {/* Heading */}
           <div className="mb-6">
             <h2 style={{ color: "#3D2314", fontSize: "26px", fontWeight: 800, lineHeight: 1.2 }}>
               {tab === "signin" ? tr.signInTitle : tr.signUpTitle}
@@ -246,7 +230,6 @@ export function LoginScreen({ tr, lang, setLang, onLogin }: LoginScreenProps) {
             </p>
           </div>
 
-          {/* Form fields */}
           <div className="flex flex-col gap-4">
             {tab === "signup" && (
               <Field
@@ -302,7 +285,6 @@ export function LoginScreen({ tr, lang, setLang, onLogin }: LoginScreenProps) {
               </p>
             )}
 
-            {/* Primary CTA */}
             <button
               onClick={handleSubmit}
               disabled={isLoading}
@@ -318,14 +300,12 @@ export function LoginScreen({ tr, lang, setLang, onLogin }: LoginScreenProps) {
               {isLoading ? "..." : (tab === "signin" ? tr.btnSignIn : tr.btnSignUp)} →
             </button>
 
-            {/* Divider */}
             <div className="flex items-center gap-3">
               <div className="flex-1 h-px" style={{ background: "#F5CBA7" }} />
               <span style={{ color: "#B07050", fontSize: "12px", whiteSpace: "nowrap" }}>{tr.orContinueWith}</span>
               <div className="flex-1 h-px" style={{ background: "#F5CBA7" }} />
             </div>
 
-            {/* Google button */}
             <button
               onClick={handleGoogleLogin}
               disabled={isLoading}
@@ -346,7 +326,6 @@ export function LoginScreen({ tr, lang, setLang, onLogin }: LoginScreenProps) {
             </button>
           </div>
 
-          {/* Footer notes */}
           <p className="mt-5 text-center" style={{ color: "#B07050", fontSize: "12px", lineHeight: 1.6 }}>
             {tr.privacyNote}
           </p>

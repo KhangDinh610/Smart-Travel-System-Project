@@ -1,6 +1,6 @@
-# SouvenirAI - Smart Shopping Assistant
+# BuyAI - Smart Shopping Assistant
 
-SouvenirAI là một ứng dụng hỗ trợ mua sắm thông minh sử dụng AI để giúp khách du lịch tìm kiếm và khám phá các đặc sản địa phương, đồ thủ công mỹ nghệ và quà lưu niệm độc đáo.
+BuyAI là một ứng dụng hỗ trợ mua sắm thông minh sử dụng AI để giúp khách du lịch tìm kiếm và khám phá các đặc sản địa phương, đồ thủ công mỹ nghệ và quà lưu niệm độc đáo.
 
 ## 🚀 Tính năng chính
 
