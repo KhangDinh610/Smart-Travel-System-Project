@@ -1,0 +1,64 @@
+# .understandignore - patterns for files/dirs to exclude from analysis
+# Syntax: same as .gitignore (globs, # comments, ! negation, trailing / for dirs)
+# Lines below are suggestions - uncomment to activate.
+# Use ! prefix to force-include something excluded by defaults.
+#
+# Built-in defaults (always excluded unless negated):
+#   node_modules/, .git/, dist/, build/, obj/, *.lock, *.min.js, etc.
+#
+.understand-anything/
+.agents/
+.codex/
+.env
+*.env
+backend/__pycache__/
+backend/chroma_db/
+backend/*.db
+backend/serviceAccountKey.json
+backend/gcp-vision-key.json
+backend/firebase-key.json
+frontend/node_modules/
+frontend/dist/
+
+# --- From .gitignore (uncomment to exclude) ---
+
+# *.py[cod]
+# *$py.class
+# env/
+# develop-eggs/
+# downloads/
+# eggs/
+# .eggs/
+# lib/
+# lib64/
+# parts/
+# sdist/
+# var/
+# wheels/
+# *.egg-info/
+# .installed.cfg
+# *.egg
+# frontend/node_modules/
+# frontend/dist/
+# npm-debug.log*
+# yarn-debug.log*
+# yarn-error.log*
+# *.db
+# backend/*.db
+# backend/chroma_db/
+# chroma_db/
+# .env
+# *.env
+# backend/serviceAccountKey.json
+# backend/gcp-vision-key.json
+# backend/firebase-key.json
+# *.swp
+# *.swo
+# .DS_Store
+# Thumbs.db
+
+# --- Test file patterns (uncomment to exclude) ---
+
+# *.test.*
+# *.spec.*
+# *.snap
