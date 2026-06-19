@@ -31,7 +31,7 @@ class VectorDB:
     def add_documents(self, ids, documents, metadatas=None, collection=None):
         """Thêm tài liệu vào vector database (sử dụng embedding function của collection)"""
         target_collection = collection or self.collection
-        target_collection.add(
+        target_collection.upsert(
             ids=ids,
             documents=documents,
             metadatas=metadatas
@@ -41,7 +41,7 @@ class VectorDB:
         """Thêm tài liệu với vector có sẵn (không dùng embedding function nội bộ)"""
         # Khi dùng embeddings có sẵn, collection không nên có embedding_function
         collection = self.client.get_or_create_collection(name=collection_name)
-        collection.add(
+        collection.upsert(
             ids=ids,
             embeddings=embeddings,
             metadatas=metadatas,

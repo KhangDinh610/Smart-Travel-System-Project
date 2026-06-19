@@ -17,7 +17,14 @@ export default function App() {
     return saved ? JSON.parse(saved) : null;
   });
   const [screen, setScreen] = useState<Screen>(user ? "home" : "login");
-  const [lang, setLang] = useState<Lang>("vi");
+  const [lang, setLang] = useState<Lang>(() => {
+    const saved = localStorage.getItem("lang");
+    return (saved === "en" || saved === "vi") ? (saved as Lang) : "vi";
+  });
+
+  useEffect(() => {
+    localStorage.setItem("lang", lang);
+  }, [lang]);
   const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
   const [savedItems, setSavedItems] = useState<Set<number>>(new Set());
   const [initialChatSession, setInitialChatSession] = useState<number | undefined>();

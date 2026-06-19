@@ -28,11 +28,7 @@ def run_scraper():
         if not shop:
             shop = Shop(
                 name="Gốm Sứ Bát Tràng",
-                address="Bát Tràng, Gia Lâm, Hà Nội",
-                latitude=20.9754,
-                longitude=105.9126,
-                shop_type="Ceramics & Pottery",
-                opening_hours="8:00 AM - 6:00 PM"
+                address="Bát Tràng, Gia Lâm, Hà Nội"
             )
             db.add(shop)
             db.commit()

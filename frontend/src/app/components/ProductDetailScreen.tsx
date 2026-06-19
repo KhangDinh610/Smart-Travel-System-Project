@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import {
-  ArrowLeft, Star, MapPin, Navigation, Heart, Share2,
+  ArrowLeft, Star, MapPin, Navigation, Heart,
   MessageCircle, ChevronRight, Sparkles, Clock, Shield,
-  Compass, Home, Bookmark, User, Send, X, AlertTriangle, Menu, LogOut
+  Compass, Home, Bookmark, User, Send, X, AlertTriangle, Menu, LogOut, ShoppingCart
 } from "lucide-react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { LangToggle } from "./LangToggle";
@@ -36,6 +36,8 @@ export function ProductDetailScreen({ tr, lang, setLang, user, productId, onBack
   const [related, setRelated] = useState<ApiProduct[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [duplicateWarning, setDuplicateWarning] = useState<string | null>(null);
+  const [isPurchased, setIsPurchased] = useState(false);
+  const [isAskingAI, setIsAskingAI] = useState(false);
 
   const productGallery = product?.image_url ? [product.image_url] : GALLERY;
 
@@ -48,7 +50,7 @@ export function ProductDetailScreen({ tr, lang, setLang, user, productId, onBack
       try {
         const fetchedProduct = await api.getProduct(productId, lang);
         setProduct(fetchedProduct);
-        
+
         if (fetchedProduct.shop_id) {
           api.getShop(fetchedProduct.shop_id).then(setShop).catch(console.error);
         }
@@ -56,22 +58,27 @@ export function ProductDetailScreen({ tr, lang, setLang, user, productId, onBack
         // Fetch dynamic related products
         api.getRelatedProducts(productId, lang).then(setRelated).catch(console.error);
 
-        // Also log history
         if (user && fetchedProduct) {
-           api.createHistory(user.uid, String(productId), fetchedProduct.shop_id).catch(console.error);
-           
-           // Detect duplicate
-           const targetText = fetchedProduct.name + " | " + (fetchedProduct.description || "");
-           api.detectDuplicate(targetText, user.uid)
-             .then(res => {
-               if (res.score > 0.7 && res.text) {
-                 const matchedName = res.text.split('|')[0].trim();
-                 setDuplicateWarning(lang === "vi" 
-                   ? `Có vẻ bạn đã xem/lưu món tương tự: ${matchedName}` 
-                   : `You previously viewed/saved a similar item: ${matchedName}`);
+           // Check if already in history to set isPurchased state initially
+           api.getHistory(user.uid, lang).then(history => {
+               const purchased = history.some(h => h.product.id === productId);
+               setIsPurchased(purchased);
+               
+               if (!purchased) {
+                 // Detect duplicate only if not already purchased
+                 const targetText = fetchedProduct.name + " | " + (fetchedProduct.description || "");
+                 api.detectDuplicate(targetText, user.uid)
+                   .then(res => {
+                     if (res.score > 0.7 && res.text) {
+                       const matchedName = res.text.split('|')[0].trim();
+                       setDuplicateWarning(lang === "vi"
+                         ? `Có vẻ bạn đã mua/xem món tương tự: ${matchedName}`
+                         : `You previously bought/viewed a similar item: ${matchedName}`);
+                     }
+                   })
+                   .catch(console.error);
                }
-             })
-             .catch(console.error);
+           }).catch(console.error);
         }
       } catch (error) {
         console.error("Failed to fetch product:", error);
@@ -80,12 +87,43 @@ export function ProductDetailScreen({ tr, lang, setLang, user, productId, onBack
       }
     }
     fetchProduct();
-  }, [productId]);
+  }, [productId, user, lang]);
+
+  const handleRecordPurchase = async () => {
+    if (!user || !product || isPurchased) return;
+    try {
+      await api.createHistory(user.uid, String(product.id), product.shop_id);
+      setIsPurchased(true);
+      
+      // Auto-save to wishlist if not already saved
+      if (productId && !savedItems.has(productId)) {
+        await toggleSave(productId);
+      }
+      
+      alert(lang === "vi" ? "Đã ghi nhận mua sắm thành công!" : "Purchase recorded successfully!");
+    } catch (e) {
+      console.error("Failed to record purchase:", e);
+      alert(lang === "vi" ? "Có lỗi xảy ra. Vui lòng thử lại." : "An error occurred. Please try again.");
+    }
+  };
 
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center h-screen" style={{ background: "#FDF3EB" }}>
         <p style={{ color: "#E2714A", fontWeight: 700 }}>{lang === "vi" ? "Đang tải..." : "Loading..."}</p>
+      </div>
+    );
+  }
+
+  if (isAskingAI) {
+    return (
+      <div className="flex min-h-screen items-center justify-center h-screen flex-col" style={{ background: "#FDF3EB" }}>
+        <div className="animate-spin mb-4">
+          <Sparkles size={32} color="#E2714A" />
+        </div>
+        <p style={{ color: "#E2714A", fontWeight: 700 }}>
+          {lang === "vi" ? "AI đang kết nối và chuẩn bị phản hồi..." : "AI is connecting and preparing response..."}
+        </p>
       </div>
     );
   }
@@ -167,9 +205,6 @@ export function ProductDetailScreen({ tr, lang, setLang, user, productId, onBack
             <div className="lg:hidden">
               <LangToggle lang={lang} setLang={setLang} />
             </div>
-            <button className="flex items-center gap-2 px-4 py-2 rounded-xl" style={{ background: "white", border: "1.5px solid #F5CBA7", color: "#7A4528", fontSize: "13px", fontWeight: 600 }}>
-              <Share2 size={15} /> {tr.share}
-            </button>
           </div>
         </div>
 
@@ -190,9 +225,6 @@ export function ProductDetailScreen({ tr, lang, setLang, user, productId, onBack
                   <div className="flex items-start justify-between">
                     <div>
                       <p style={{ color: "#3D2314", fontSize: "16px", fontWeight: 700 }}>{shop ? shop.name : (lang === "vi" ? "Xưởng đèn lồng Linh" : "Linh's Lantern Atelier")}</p>
-                      <div className="flex items-center gap-1.5 mt-0.5">
-                        <span style={{ color: "#7A4528", fontSize: "12px" }}>{shop?.shop_type || tr.localArtisanShop}</span>
-                      </div>
                       <div className="flex items-center gap-1 mt-1.5">
                         <MapPin size={12} style={{ color: "#B07050" }} />
                         <span style={{ color: "#7A4528", fontSize: "13px" }}>{shop?.address || "38 Trần Hưng Đạo, Hội An"}</span>
@@ -216,8 +248,22 @@ export function ProductDetailScreen({ tr, lang, setLang, user, productId, onBack
                 {product ? product.name : (lang === "vi" ? "Đèn Lồng Lụa Hội An" : "Hoi An Silk Lantern")}
               </h1>
 
-              {duplicateWarning && (
-                <div className="mt-4 p-3 rounded-xl flex items-start gap-3" style={{ background: "#FFFBEB", border: "1px solid #FDE68A" }}>
+              {isPurchased && (
+                <div className="mt-4 p-3 rounded-xl flex items-start gap-3 animate-pulse" style={{ background: "#FEF2F2", border: "1.5px solid #FCA5A5" }}>
+                  <AlertTriangle size={20} style={{ color: "#DC2626", marginTop: "2px" }} />
+                  <div>
+                    <p style={{ color: "#991B1B", fontSize: "14px", fontWeight: 700 }}>
+                      {lang === "vi" ? "Sản phẩm này đã từng được mua!" : "This product has already been purchased!"}
+                    </p>
+                    <p style={{ color: "#B91C1C", fontSize: "12px", marginTop: "2px" }}>
+                      {lang === "vi" ? "Vui lòng kiểm tra lại để tránh mua trùng lặp." : "Please double-check to avoid duplicate shopping."}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {!isPurchased && duplicateWarning && (
+                <div className="mt-4 p-3 rounded-xl flex items-start gap-3" style={{ background: "#FFFBEB", border: "1.5px solid #FDE68A" }}>
                   <AlertTriangle size={20} style={{ color: "#D97706", marginTop: "2px" }} />
                   <p style={{ color: "#92400E", fontSize: "14px", fontWeight: 600 }}>{duplicateWarning}</p>
                 </div>
@@ -263,22 +309,43 @@ export function ProductDetailScreen({ tr, lang, setLang, user, productId, onBack
               </div>
 
               {/* CTAs */}
-              <div className="flex gap-3 mt-6">
+              <div className="flex flex-col gap-3 mt-6">
+                <div className="flex gap-3">
+                  <button
+                    onClick={async () => {
+                      if (product) {
+                        setIsAskingAI(true);
+                        try {
+                          await onAskAI(product);
+                        } catch (e) {
+                          console.error(e);
+                        } finally {
+                          setIsAskingAI(false);
+                        }
+                      }
+                    }}
+                    className="flex-1 flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl transition-all hover:opacity-90"
+                    style={{ background: "#FEF0EA", border: "2px solid #E2714A", color: "#E2714A", fontWeight: 700, fontSize: "14px" }}
+                  >
+                    <MessageCircle size={17} /> {lang === "vi" ? "Hỏi AI" : "Ask AI"}
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (productId) toggleSave(productId);
+                    }}
+                    className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl transition-all hover:opacity-90"
+                    style={{ background: "linear-gradient(135deg, #E2714A, #C8562E)", color: "white", fontWeight: 700, fontSize: "15px", boxShadow: "0 4px 20px rgba(226,113,74,0.4)" }}
+                  >
+                    <Heart size={17} fill={(productId && savedItems.has(productId)) ? "white" : "none"} /> {(productId && savedItems.has(productId)) ? tr.saved : tr.saveWishlist}
+                  </button>
+                </div>
                 <button
-                  onClick={() => product && onAskAI(product)}
-                  className="flex items-center gap-2 px-5 py-3.5 rounded-xl transition-all hover:opacity-90"
-                  style={{ background: "#FEF0EA", border: "2px solid #E2714A", color: "#E2714A", fontWeight: 700, fontSize: "14px" }}
+                  onClick={handleRecordPurchase}
+                  disabled={isPurchased}
+                  className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl transition-all disabled:opacity-60"
+                  style={{ background: isPurchased ? "#10B981" : "#3D2314", color: "white", fontWeight: 700, fontSize: "15px", boxShadow: isPurchased ? "none" : "0 4px 20px rgba(61,35,20,0.3)" }}
                 >
-                  <MessageCircle size={17} /> {lang === "vi" ? "Hỏi AI về sản phẩm" : "Ask AI about Product"}
-                </button>
-                <button
-                  onClick={() => {
-                    if (productId) toggleSave(productId);
-                  }}
-                  className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl transition-all hover:opacity-90"
-                  style={{ background: "linear-gradient(135deg, #E2714A, #C8562E)", color: "white", fontWeight: 700, fontSize: "15px", boxShadow: "0 4px 20px rgba(226,113,74,0.4)" }}
-                >
-                  <Heart size={17} fill={(productId && savedItems.has(productId)) ? "white" : "none"} /> {(productId && savedItems.has(productId)) ? tr.saved : tr.saveWishlist}
+                  <ShoppingCart size={17} /> {isPurchased ? (lang === "vi" ? "Đã ghi nhận mua sắm" : "Purchase Recorded") : (lang === "vi" ? "Ghi nhận mua sắm" : "Record Purchase")}
                 </button>
               </div>
             </div>

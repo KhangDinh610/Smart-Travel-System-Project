@@ -53,3 +53,7 @@ Thumbs.db
 
 # Local agent tooling
 .agents/
+
+# Temporary directories and local tool configurations
+temp_clone/
+.understand-anything/
