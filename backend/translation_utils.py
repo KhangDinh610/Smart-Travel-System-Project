@@ -46,9 +46,6 @@ def smart_translate_name(vn_name: str) -> str:
     name_lower = vn_name.lower()
     found_terms = []
     
-    # Check for Bat Trang specifically to put it in a good position
-    is_bat_trang = "bát tràng" in name_lower
-    
     # Extract known terms
     for vn_regex, en_term in VN_EN_MAP.items():
         if re.search(vn_regex, name_lower):
@@ -58,38 +55,46 @@ def smart_translate_name(vn_name: str) -> str:
     if not found_terms:
         return vn_name # Final fallback
         
-    # Reconstruct: [Premium] [Bat Trang] [Material] [Product] [Theme/Style]
-    # This is a simple heuristic, but usually works well for product titles
+    # Categorize matches
+    materials = [t for t in found_terms if t in ["Ceramic", "Porcelain", "Pottery"]]
+    core_products = [t for t in found_terms if t in ["Tea Set", "Teapot", "Vase", "Mug", "Cup", "Painting", "Statue", "Lamp", "Tableware Set", "Bowl", "Plate"]]
+    others = [t for t in found_terms if t not in materials and t not in core_products]
     
     parts = []
-    if "Premium" in found_terms: parts.append("Premium")
-    if "Bat Trang" in found_terms: parts.append("Bat Trang")
     
-    # Material
-    if "Ceramic" in found_terms: parts.append("Ceramic")
-    elif "Porcelain" in found_terms: parts.append("Porcelain")
-    elif "Pottery" in found_terms: parts.append("Pottery")
-    
-    # Product Type (The "Core" of the name)
-    core_products = ["Tea Set", "Teapot", "Vase", "Mug", "Cup", "Painting", "Statue", "Lamp", "Tableware Set", "Bowl", "Plate"]
-    main_product = None
-    for cp in core_products:
-        if cp in found_terms:
-            main_product = cp
-            break
+    # Premium / Bat Trang
+    if "Premium" in others:
+        parts.append("Premium")
+        others.remove("Premium")
+    if "Bat Trang" in others:
+        parts.append("Bat Trang")
+        others.remove("Bat Trang")
+        
+    # Materials
+    if materials:
+        parts.append("/".join(materials))
+        
+    # Products
+    if core_products:
+        parts.append("/".join(core_products))
+        
+    # Others (like Logo Printed)
+    if others:
+        # Filter out style markers we append at the end
+        style_markers = ["Lotus", "Hand-painted", "Crackle Glaze", "Flambé Glaze"]
+        details = [o for o in others if o not in style_markers]
+        if details:
+            parts.append(f"({', '.join(details)})")
             
-    if main_product:
-        parts.append(main_product)
-    else:
-        # If no core product found, just add what we have
-        for ft in found_terms:
-            if ft not in ["Premium", "Bat Trang", "Ceramic", "Porcelain", "Pottery"]:
-                parts.append(ft)
-                
-    # Add Style/Theme at the end
-    if "Lotus" in found_terms: parts.append("- Lotus Design")
-    if "Hand-painted" in found_terms: parts.append("(Hand-painted)")
-    if "Crackle Glaze" in found_terms: parts.append("with Crackle Glaze")
+    # Add Styles/Themes at the end
+    styles = []
+    if "Lotus" in found_terms: styles.append("Lotus Design")
+    if "Hand-painted" in found_terms: styles.append("Hand-painted")
+    if "Crackle Glaze" in found_terms: styles.append("Crackle Glaze")
+    if "Flambé Glaze" in found_terms: styles.append("Flambé Glaze")
     
+    if styles:
+        parts.append(f"- {' & '.join(styles)}")
+        
     result = " ".join(parts)
     return result if result else vn_name

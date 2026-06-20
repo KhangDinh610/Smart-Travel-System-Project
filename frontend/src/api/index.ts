@@ -23,10 +23,6 @@ export interface Shop {
   id: number;
   name: string;
   address: string;
-  latitude: number;
-  longitude: number;
-  shop_type: string;
-  opening_hours: string;
 }
 
 export interface HistoryItem {
@@ -201,6 +197,15 @@ export const api = {
     return res.json();
   },
 
+  async deleteChatSession(sessionId: number): Promise<{ message: string }> {
+    const res = await fetch(`${BASE_URL}/chat/sessions/${sessionId}`, {
+      method: "DELETE",
+      headers: authHeaders(),
+    });
+    if (!res.ok) throw new Error("Failed to delete chat session");
+    return res.json();
+  },
+
   async getChatMessages(sessionId: number): Promise<ChatMessage[]> {
     const res = await fetch(`${BASE_URL}/chat/sessions/${sessionId}/messages`, {
       headers: authHeaders(),
@@ -234,6 +239,14 @@ export const api = {
       headers: { "Authorization": `Bearer ${getToken()}` }
     });
     if (!res.ok) throw new Error("Failed to fetch wishlist");
+    return res.json();
+  },
+
+  async getWishlistProducts(userId: string, lang: string = "vi"): Promise<Product[]> {
+    const res = await fetch(`${BASE_URL}/wishlist/${userId}/products?lang=${lang}`, {
+      headers: { "Authorization": `Bearer ${getToken()}` }
+    });
+    if (!res.ok) throw new Error("Failed to fetch wishlist products");
     return res.json();
   },
 

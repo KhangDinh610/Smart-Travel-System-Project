@@ -3,11 +3,7 @@
     {
       "id": 1,
       "name": "Gốm Sứ Bát Tràng",
-      "address": "Bát Tràng, Gia Lâm, Hà Nội",
-      "latitude": 20.9754,
-      "longitude": 105.9126,
-      "shop_type": "Ceramics & Pottery",
-      "opening_hours": "8:00 AM - 6:00 PM"
+      "address": "Bát Tràng, Gia Lâm, Hà Nội"
     }
   ],
   "products": [
@@ -27,9 +23,9 @@
     {
       "id": 2,
       "name": "Bộ ấm chén in logo văn phòng chính phủ",
-      "name_en": null,
+      "name_en": "Government Office Logo-Printed Tea Set",
       "description": "Sản phẩm gốm sứ Bát Tràng cao cấp: Bộ ấm chén in logo văn phòng chính phủ",
-      "description_en": null,
+      "description_en": "Premium Bat Trang ceramic product: Government Office Logo-Printed Tea Set",
       "price": 495000.0,
       "tag": "Traditional",
       "image_url": "https://gomsubattrang.vn/uploads/data/20/imgproducts/Thumb_20200827171024_77598.jpg",
@@ -40,9 +36,9 @@
     {
       "id": 3,
       "name": "Ấm chén Bát Tràng in logo giá bao nhiêu",
-      "name_en": null,
+      "name_en": "Bat Trang Logo-Printed Tea Set",
       "description": "Sản phẩm gốm sứ Bát Tràng cao cấp: Ấm chén Bát Tràng in logo giá bao nhiêu",
-      "description_en": null,
+      "description_en": "Premium Bat Trang ceramic product: Bat Trang Logo-Printed Tea Set",
       "price": 198000.0,
       "tag": "Traditional",
       "image_url": "https://gomsubattrang.vn/uploads/data/20/imgproducts/Thumb_20201101223255_08944.jpg",
@@ -53,9 +49,9 @@
     {
       "id": 4,
       "name": "Ấm chén trà in logo - quà tặng ngày kỷ niệm",
-      "name_en": null,
+      "name_en": "Logo-Printed Tea Set - Anniversary Gift",
       "description": "Sản phẩm gốm sứ Bát Tràng cao cấp: Ấm chén trà in logo - quà tặng ngày kỷ niệm",
-      "description_en": null,
+      "description_en": "Premium Bat Trang ceramic product: Logo-Printed Tea Set - Anniversary Gift",
       "price": 307800.0,
       "tag": "Traditional",
       "image_url": "https://gomsubattrang.vn/uploads/data/20/imgproducts/Thumb_20210909163656_09085.jpg",
@@ -352,9 +348,9 @@
     {
       "id": 27,
       "name": "Bình hoa trang trí cầu thang sang trọng, đẹp",
-      "name_en": null,
+      "name_en": "Luxury Decorative Staircase Vase",
       "description": "Sản phẩm gốm sứ Bát Tràng cao cấp: Bình hoa trang trí cầu thang sang trọng, đẹp",
-      "description_en": null,
+      "description_en": "Premium Bat Trang ceramic product: Luxury Decorative Staircase Vase",
       "price": 0.0,
       "tag": "Traditional",
       "image_url": "https://gomsubattrang.vn/uploads/data/20/imgproducts/Thumb_20210423202929_85078.jpg",

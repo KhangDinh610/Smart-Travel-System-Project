@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import {
   MessageCircle, Plus, Send, Sparkles, X, ChevronLeft,
-  Calendar, MapPin, Search, Menu, Home, Bookmark, User, LogOut, ArrowLeft
+  Calendar, MapPin, Search, Menu, Home, Bookmark, User, LogOut, ArrowLeft, Trash2
 } from "lucide-react";
 import { api, type ChatSession, type ChatMessage, type User as ApiUser } from "../../api";
 import { type Lang, type Translations } from "../translations";
@@ -85,6 +85,26 @@ export function ChatScreen({ tr, lang, setLang, user, onNavigate, initialSession
     }
   };
 
+  const deleteSession = async (e: React.MouseEvent, sessionId: number) => {
+    e.stopPropagation(); // Prevent selecting the session when clicking delete
+    
+    if (!window.confirm(lang === "vi" ? "Bạn có chắc chắn muốn xóa phiên chat này?" : "Are you sure you want to delete this chat session?")) {
+      return;
+    }
+
+    try {
+      await api.deleteChatSession(sessionId);
+      setSessions(prev => prev.filter(s => s.id !== sessionId));
+      if (activeSession === sessionId) {
+        setActiveSession(null);
+        setMessages([]);
+      }
+    } catch (e) {
+      console.error("Failed to delete session", e);
+      alert(lang === "vi" ? "Không thể xóa phiên chat. Vui lòng thử lại." : "Failed to delete session. Please try again.");
+    }
+  };
+
   const sendMessage = async () => {
     if (!input.trim() || !activeSession || isLoading) return;
     
@@ -158,11 +178,18 @@ export function ChatScreen({ tr, lang, setLang, user, onNavigate, initialSession
 
   return (
     <div className="flex h-screen w-full overflow-hidden" style={{ background: "#FDF3EB" }}>
+      {/* Mobile backdrop */}
+      {isSidebarOpen && (
+        <div 
+          onClick={() => setIsSidebarOpen(false)}
+          className="fixed inset-0 bg-black/40 z-40 lg:hidden"
+        />
+      )}
       
       {/* ── Sidebar ── */}
       <aside
-        className={`hidden lg:flex flex-col flex-shrink-0 transition-all duration-300 ${isSidebarOpen ? "w-72 xl:w-80" : "w-0 opacity-0 overflow-hidden"}`}
-        style={{ background: "#3D2314", position: "relative" }}
+        className={`fixed inset-y-0 left-0 z-50 lg:relative flex flex-col flex-shrink-0 transition-all duration-300 ${isSidebarOpen ? "w-72 xl:w-80 translate-x-0" : "w-0 lg:w-0 opacity-0 -translate-x-full lg:translate-x-0 overflow-hidden"}`}
+        style={{ background: "#3D2314" }}
       >
         <div className="px-6 pt-8 pb-5 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
@@ -171,6 +198,13 @@ export function ChatScreen({ tr, lang, setLang, user, onNavigate, initialSession
             </div>
             <span style={{ color: "white", fontSize: "18px", fontWeight: 800 }}>BuyAI Assistant</span>
           </div>
+          {/* Close button for mobile */}
+          <button 
+            onClick={() => setIsSidebarOpen(false)}
+            className="lg:hidden p-1.5 rounded-lg hover:bg-white/10 text-white/60 hover:text-white"
+          >
+            <X size={18} />
+          </button>
         </div>
 
         <div className="px-4 mb-4">
@@ -189,7 +223,13 @@ export function ChatScreen({ tr, lang, setLang, user, onNavigate, initialSession
             {sessions.map((s) => (
               <button
                 key={s.id}
-                onClick={() => setActiveSession(s.id)}
+                onClick={() => {
+                  setActiveSession(s.id);
+                  // Auto close sidebar on mobile when session selected
+                  if (window.innerWidth < 1024) {
+                    setIsSidebarOpen(false);
+                  }
+                }}
                 className="group flex flex-col gap-1 px-4 py-3 rounded-xl text-left transition-all"
                 style={{
                   background: activeSession === s.id ? "rgba(255,255,255,0.08)" : "transparent",
@@ -200,6 +240,12 @@ export function ChatScreen({ tr, lang, setLang, user, onNavigate, initialSession
                    <p style={{ color: activeSession === s.id ? "white" : "rgba(255,255,255,0.7)", fontSize: "14px", fontWeight: activeSession === s.id ? 700 : 500 }} className="truncate">
                     {s.title}
                   </p>
+                  <div 
+                    onClick={(e) => deleteSession(e, s.id)}
+                    className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg hover:bg-white/10 text-white/40 hover:text-red-400 transition-all"
+                  >
+                    <Trash2 size={14} />
+                  </div>
                 </div>
                 <div className="flex items-center gap-2 text-[11px]" style={{ color: "rgba(255,255,255,0.4)" }}>
                    <Calendar size={10} /> {new Date(s.created_at).toLocaleDateString(lang === "vi" ? "vi-VN" : "en-US")}
@@ -218,7 +264,7 @@ export function ChatScreen({ tr, lang, setLang, user, onNavigate, initialSession
             <button onClick={() => onNavigate("home")} className="flex items-center justify-center p-2 rounded-xl hover:bg-orange-50 text-[#E2714A]">
                <ArrowLeft size={20} />
             </button>
-            <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="hidden lg:flex items-center justify-center p-2 rounded-xl hover:bg-orange-50 text-[#E2714A]">
+            <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="flex items-center justify-center p-2 rounded-xl hover:bg-orange-50 text-[#E2714A]">
               <Menu size={20} />
             </button>
             <div>
@@ -228,7 +274,18 @@ export function ChatScreen({ tr, lang, setLang, user, onNavigate, initialSession
               <p style={{ color: "#059669", fontSize: "11px", fontWeight: 600 }}>● {lang === "vi" ? "Sẵn sàng hỗ trợ" : "Assistant Online"}</p>
             </div>
           </div>
-          <LangToggle lang={lang} setLang={setLang} />
+          <div className="flex items-center gap-2">
+            {activeSession && (
+              <button 
+                onClick={(e) => deleteSession(e, activeSession)}
+                className="flex items-center justify-center p-2 rounded-xl hover:bg-red-50 text-red-500 transition-colors"
+                title={lang === "vi" ? "Xóa cuộc trò chuyện này" : "Delete this conversation"}
+              >
+                <Trash2 size={20} />
+              </button>
+            )}
+            <LangToggle lang={lang} setLang={setLang} />
+          </div>
         </header>
 
         {/* Messages */}
@@ -288,14 +345,15 @@ export function ChatScreen({ tr, lang, setLang, user, onNavigate, initialSession
               {isLoading && (
                 <div className="flex justify-start">
                    <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 mr-3 mt-1 shadow-sm" style={{ background: "linear-gradient(135deg, #E2714A, #C8562E)" }}>
-                      <Sparkles size={16} color="white" className="animate-pulse" />
+                      <Sparkles size={16} color="white" className="animate-spin" />
                    </div>
-                   <div className="px-5 py-4 rounded-[24px_24px_24px_4px] bg-white border border-[#F5CBA7] shadow-sm">
-                      <div className="flex gap-1.5">
-                         <div className="w-2 h-2 rounded-full bg-[#E2714A] animate-bounce" style={{ animationDelay: "0ms" }} />
-                         <div className="w-2 h-2 rounded-full bg-[#E2714A] animate-bounce" style={{ animationDelay: "150ms" }} />
-                         <div className="w-2 h-2 rounded-full bg-[#E2714A] animate-bounce" style={{ animationDelay: "300ms" }} />
+                   <div className="px-5 py-4 rounded-[24px_24px_24px_4px] bg-white border border-[#F5CBA7] shadow-sm flex items-center gap-3">
+                      <div className="animate-spin flex-shrink-0">
+                         <Sparkles size={16} color="#E2714A" />
                       </div>
+                      <span className="text-[13px] font-semibold" style={{ color: "#7A4528" }}>
+                         {lang === "vi" ? "AI đang suy nghĩ..." : "AI is thinking..."}
+                      </span>
                    </div>
                 </div>
               )}

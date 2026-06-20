@@ -158,10 +158,6 @@ class FirebaseLoginRequest(BaseModel):
 class ShopBase(BaseModel):
     name: str
     address: str
-    latitude: float
-    longitude: float
-    shop_type: Optional[str] = "Local Artisan Shop"
-    opening_hours: Optional[str] = "7:00 AM - 10:00 PM"
 
 class ShopCreate(ShopBase):
     pass
@@ -364,6 +360,21 @@ async def create_chat_session(session_data: ChatSessionBase, db: Session = Depen
 @router.get("/chat/sessions", response_model=List[ChatSessionResponse], tags=["Business"])
 async def get_chat_sessions(db: Session = Depends(get_db), user: dict = Depends(verify_firebase_token)):
     return db.query(ChatSession).filter(ChatSession.user_id == user["uid"]).order_by(ChatSession.created_at.desc()).all()
+
+@router.delete("/chat/sessions/{session_id}", tags=["Business"])
+async def delete_chat_session(session_id: int, db: Session = Depends(get_db), user: dict = Depends(verify_firebase_token)):
+    # Verify ownership
+    session = db.query(ChatSession).filter(ChatSession.id == session_id, ChatSession.user_id == user["uid"]).first()
+    if not session:
+        raise HTTPException(status_code=404, detail="Chat session not found")
+    
+    # Delete associated messages first
+    db.query(ChatMessage).filter(ChatMessage.session_id == session_id).delete()
+    
+    # Delete the session
+    db.delete(session)
+    db.commit()
+    return {"message": "Chat session deleted successfully"}
 
 @router.get("/chat/sessions/{session_id}/messages", response_model=List[ChatMessageResponse], tags=["Business"])
 async def get_chat_messages(session_id: int, db: Session = Depends(get_db), user: dict = Depends(verify_firebase_token)):
@@ -699,7 +710,7 @@ async def create_history(history: HistoryCreate, db: Session = Depends(get_db), 
             vector_db.add_documents(
                 ids=[f"hist_{db_history.id}"],
                 documents=[f"{product.name} | {product.description}"],
-                metadatas=[{"user_id": history.user_id, "type": "history"}]
+                metadatas=[{"user_id": user["uid"], "type": "history"}]
             )
         except Exception as e:
             print(f"Error updating VectorDB from history: {e}")
@@ -747,6 +758,37 @@ async def get_wishlist(user_id: str, db: Session = Depends(get_db), user: dict =
         raise HTTPException(status_code=403, detail="Forbidden")
     items = db.query(Wishlist).filter(Wishlist.user_id == user["uid"]).all()
     return {"product_ids": [item.product_id for item in items]}
+
+@router.get("/wishlist/{user_id}/products", response_model=List[ProductResponse], tags=["Business"])
+async def get_wishlist_products(user_id: str, lang: str = "vi", db: Session = Depends(get_db), user: dict = Depends(verify_firebase_token)):
+    if user_id != user["uid"]:
+        raise HTTPException(status_code=403, detail="Forbidden")
+    
+    wishlist_items = db.query(Wishlist).filter(Wishlist.user_id == user["uid"]).all()
+    product_ids = [item.product_id for item in wishlist_items]
+    
+    if not product_ids:
+        return []
+        
+    products = db.query(Product).filter(Product.id.in_(product_ids)).all()
+    
+    results = []
+    # Re-order fetched products to match the wishlist addition order or index them
+    for p in products:
+        p_res = ProductResponse.from_orm(p)
+        if lang == "en":
+            if p.name_en and not p.name_en.startswith("Error") and p.name_en != "":
+                p_res.name = p.name_en
+                if p.description_en: p_res.description = p.description_en
+            else:
+                p_res.name = smart_translate_name(p.name)
+        
+        shop = db.query(Shop).filter(Shop.id == p.shop_id).first()
+        if shop:
+            p_res.shop_address = shop.address
+        results.append(p_res)
+        
+    return results
 
 @router.post("/wishlist", tags=["Business"])
 async def toggle_wishlist(action: WishlistAction, db: Session = Depends(get_db), user: dict = Depends(verify_firebase_token)):
@@ -857,6 +899,8 @@ async def detect_duplicate(request: DetectDuplicateRequest, db: Session = Depend
         
         if not existing_products:
             return {
+                "id": None,
+                "text": None,
                 "score": 0.0,
                 "match_type": "None",
                 "semantic_score": 0.0,
@@ -871,6 +915,8 @@ async def detect_duplicate(request: DetectDuplicateRequest, db: Session = Depend
         print(f"Duplicate detection error: {e}")
 
     return {
+        "id": None,
+        "text": None,
         "score": 0.0,
         "match_type": "None",
         "semantic_score": 0.0,

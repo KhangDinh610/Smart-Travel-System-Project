@@ -5,7 +5,7 @@ import { LangToggle, LangToggleLight } from "./LangToggle";
 import { type Lang, type Translations } from "../translations";
 import { api, type User } from "../../api";
 import { auth, googleProvider } from "../firebase";
-import { signInWithPopup } from "firebase/auth";
+import { signInWithPopup, getAdditionalUserInfo } from "firebase/auth";
 import vietnamSvg from "@/assets/VIETNAM.svg";
 
 interface LoginScreenProps {
@@ -121,7 +121,6 @@ export function LoginScreen({ tr, lang, setLang, onLogin }: LoginScreenProps) {
     setIsLoading(true);
     setErrors({});
     try {
-      const { getAdditionalUserInfo } = await import("firebase/auth");
       const result = await signInWithPopup(auth, googleProvider);
       const token = await result.user.getIdToken();
       const isNewUser = getAdditionalUserInfo(result)?.isNewUser;

@@ -18,10 +18,6 @@ class Shop(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
     address = Column(String)
-    latitude = Column(Float)
-    longitude = Column(Float)
-    shop_type = Column(String, default="Local Artisan Shop")
-    opening_hours = Column(String, default="7:00 AM - 10:00 PM")
 
 class Product(Base):
     __tablename__ = "products"
