@@ -1,0 +1,1 @@
+print('Send JSON batches to Ollama and collect results')

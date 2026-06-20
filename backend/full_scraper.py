@@ -3,6 +3,14 @@ from database import SessionLocal, Shop, Product, init_db
 from vector_db import vector_db
 import json
 import re
+import sys
+
+try:
+    sys.stdout.reconfigure(encoding='utf-8')
+    sys.stderr.reconfigure(encoding='utf-8')
+except Exception:
+    pass
+
 
 def clean_price(price_str):
     if not price_str:

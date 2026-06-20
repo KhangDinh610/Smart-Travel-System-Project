@@ -1,0 +1,3 @@
+Process the following JSON batch and return JSON only:
+
+{{JSON_BATCH}}

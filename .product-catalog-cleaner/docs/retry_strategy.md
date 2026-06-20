@@ -1,0 +1,1 @@
+Retry invalid JSON once, then split batch.

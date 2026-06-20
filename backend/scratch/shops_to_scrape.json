@@ -1,0 +1,116 @@
+[
+  {
+    "name": "HueFood",
+    "link": "https://huefood.vn/",
+    "address": "20 đường Chi Lăng, Phú Cát, TP. Huế, tỉnh Thừa Thiên - Huế.",
+    "source": "phuc"
+  },
+  {
+    "name": "Trà Cung Đình Huế",
+    "link": "https://tracungdinhhue.com.vn/",
+    "address": "24 Nguyễn Huệ, Phường Vĩnh Ninh, Thành phố Huế, Tỉnh Thừa Thiên Huế",
+    "source": "phuc"
+  },
+  {
+    "name": "Huế Farm",
+    "link": "https://huefarm.vn/",
+    "address": "106 Lý Nam Đế, Kim Long, TP. Huế, tỉnh Thừa Thiên - Huế.",
+    "source": "phuc"
+  },
+  {
+    "name": "Mộc’s Truly Hue’s",
+    "link": "https://moctrulyhue.com/",
+    "address": "52 Nguyễn Phúc Nguyên, Hương Long, TP. Huế, tỉnh Thừa Thiên - Huế.",
+    "source": "phuc"
+  },
+  {
+    "name": "Đặc sản Huế 24h",
+    "link": "https://dacsanhue24h.com/?srsltid=AfmBOoqKGTbv7FI_67B7eLTtL1lM5M1cL8DT_tsYBYRkLTQ1vBbzPJ0S",
+    "address": "158/38/7 Phạm Văn\nChiêu, Phường 9, Quận Gò Vấp,\nTP.HCM",
+    "source": "phuc"
+  },
+  {
+    "name": "Khám phá Huế",
+    "link": "https://khamphahue.com.vn/Du-lich/Chi-tiet/tid/Mua-Dac-san-Hue.html/pid/4313/cid/269",
+    "address": "06 Lê Lợi, Thành phố Huế",
+    "source": "phuc"
+  },
+  {
+    "name": "Quà Huế",
+    "link": "https://quahueonline.com/danh-muc-san-pham/dac-san-qua-hue-online/",
+    "address": "88 Phan Đăng Lưu, p. Đông Ba, Tp. Huế, Thừa Thiên - Huế",
+    "source": "phuc"
+  },
+  {
+    "name": "Tinh Hoa Huế",
+    "link": "https://tinhhoahue.com/",
+    "address": "17/126 Nguyễn Trãi - TP Huế",
+    "source": "phuc"
+  },
+  {
+    "name": "Hương Việt Mart",
+    "link": "https://huongvietmart.vn/",
+    "address": "17/126 Nguyễn Trãi - TP Huế",
+    "source": "both"
+  },
+  {
+    "name": "Ảm thực xứ Huế",
+    "link": "https://amthucxuhue.com/cua-hang/",
+    "address": "https://amthucxuhue.com/cua-hang/",
+    "source": "phuc"
+  },
+  {
+    "name": "Đặc sản Thanh Phương",
+    "link": "https://dacsanthanhphuong.vn/",
+    "address": "229 Bạch Đằng, P3, Q Gò Vấp",
+    "source": "minh"
+  },
+  {
+    "name": "Đặc Sản Quê Việt",
+    "link": "https://dacsanqueviet.com/",
+    "address": "16 đường số 8, Tân Tạo A, Bình Tân, TPHCM",
+    "source": "minh"
+  },
+  {
+    "name": "HANIGO",
+    "link": "https://hanigo.com/",
+    "address": "63 Nguyễn Văn Thoại, phường An Hải, thành phố Đà Nẵng",
+    "source": "minh"
+  },
+  {
+    "name": "Tiến Huệ - Đặc sản Hà Nội",
+    "link": "https://tienhue.com/",
+    "address": "68C Nguyễn Văn Trỗi, P. Phú Nhuận, TP. Hồ Chí Minh",
+    "source": "minh"
+  },
+  {
+    "name": "DaLaVi",
+    "link": "https://dalavi.net/",
+    "address": "27/6E Yersin St., Xuan Huong Ward, Da Lat City",
+    "source": "minh"
+  },
+  {
+    "name": "Dương Đông Food",
+    "link": "https://duongdongfood.com/",
+    "address": "Số 146 Lê Bình, Phường Tân Sơn Nhất, Thành phố Hồ Chí Minh",
+    "source": "minh"
+  },
+  {
+    "name": "Cộng Hưởng Art & Craft Shop",
+    "link": "https://conghuongartcrafts.vn/",
+    "address": "10 Nguyễn Thị Minh Khai, Phường Sài Gòn, TP Hồ Chí Minh, Việt Nam",
+    "source": "minh"
+  },
+  {
+    "name": "Mayhouse - Craft Decor & Giftshop",
+    "link": "https://mayhousedecor.com/",
+    "address": "41 Mạc Thị Bưởi, phường Bến Nghé, Quận 1, TP.HCM",
+    "source": "minh"
+  },
+  {
+    "name": "The Craft House",
+    "link": "https://thecrafthouse.vn/",
+    "address": "6/10 Cách Mạng Tháng 8, P. Bến Thành, TP.HCM",
+    "source": "minh"
+  }
+]

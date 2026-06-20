@@ -1,0 +1,1 @@
+Use batch size 20-30 for long descriptions.
