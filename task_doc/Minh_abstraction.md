@@ -1,17 +1,17 @@
-#  Trừu tượng hóa (Abstraction)
+# 7. TRỪU TƯỢNG HÓA (Abstraction)
 
 Trừu tượng hóa hệ thống là quá trình đơn giản hóa thế giới thực bằng cách tập trung vào các đặc tính cốt lõi của bài toán và loại bỏ các chi tiết kỹ thuật hoặc thực tế không cần thiết. Đối với hệ thống BuyAI, việc trừu tượng hóa giúp định hình rõ ràng bài toán tư vấn cá nhân hóa và gợi ý mua sắm thông minh cho du khách, từ đó giảm bớt sự phức tạp trong quá trình thiết kế và cài đặt thuật toán.
 
-## 1. Mô hình trừu tượng
+## [24120090 - Đặng Hồng Minh] 7.1 Mô hình trừu tượng
 
 Mô hình trừu tượng của BuyAI được xây dựng dựa trên việc chọn lọc thông tin thế giới thực, chuyển hóa các thực thể vật lý thành mô hình toán học và phân rã các hành vi giao tiếp phức tạp thành các hàm chức năng độc lập.
 
-### 1.1. Phạm vi và Nguyên tắc Trừu tượng hóa
+### [24120090 - Đặng Hồng Minh] 7.1.1 Phạm vi và Nguyên tắc Trừu tượng hóa
 Để tối ưu hóa logic cốt lõi trong phiên bản v2, hệ thống đã tiến hành tinh giản bộ máy vận hành thông qua việc xác định rõ các yếu tố được giữ lại và loại bỏ:
 * **Các chi tiết thế giới thực được loại bỏ (Ignored details):** Màu sắc hoặc thiết kế vật lý của cửa hàng, phương thức thanh toán thực tế, quy trình quản lý ngân sách phức tạp, và các rào cản về giao thông hay lộ trình di chuyển của du khách.
 * **Các đặc tính được giữ lại (Kept attributes):** Sở thích của người dùng (tags, wishlist), thông tin siêu dữ liệu (metadata) của sản phẩm, địa chỉ/tọa độ cửa hàng, lịch sử giao dịch/trò chuyện và hệ thống AI gợi ý.
 
-### 1.2. Trừu tượng hóa Dữ liệu (Data Abstraction)
+### [24120090 - Đặng Hồng Minh] 7.1.2 Trừu tượng hóa Dữ liệu (Data Abstraction)
 Mọi đối tượng và hành vi của du khách trong không gian mua sắm thực tế được quy đổi thành các cấu trúc dữ liệu tính toán được và ánh xạ vào cơ sở dữ liệu như sau:
 
 | Thực thể thực tế | Mô hình trừu tượng hóa (Abstracted Data) | Ánh xạ Cấu trúc Code / Database |
@@ -26,7 +26,7 @@ Mọi đối tượng và hành vi của du khách trong không gian mua sắm t
 | **Nhắc nhở / Cảnh báo** | Các thông báo hệ thống được gửi đến người dùng (`Notification`). | Lưu tại bảng `notifications` (**SQLite**) với cấu trúc `{user_id, title, message, is_read, timestamp}`. |
 
 
-### 1.3. Trừu tượng hóa Logic & Chức năng (Functional Abstraction)
+### [24120090 - Đặng Hồng Minh] 7.1.3 Trừu tượng hóa Logic & Chức năng (Functional Abstraction)
 Hệ thống không mô phỏng lại toàn bộ cuộc trò chuyện cảm tính giữa người mua và người bán, mà trừu tượng hóa quy trình này thành 4 module tính toán độc lập:
 
 **A. Gợi ý cá nhân hóa (Recommendation Engine)**
@@ -46,14 +46,14 @@ Luật kiểm tra trùng lặp sản phẩm được trừu tượng hóa thành
 $$similarity(f(p), f(h)) > threshold$$
 *(Quá trình này được thực hiện thông qua truy vấn tìm kiếm Vector trên ChromaDB dựa trên dữ liệu sản phẩm đã được đồng bộ từ hàm `sync_db_to_vector()`)*.
 
-### 1.4. Đánh giá tính hiệu quả của mô hình
+### [24120090 - Đặng Hồng Minh] 7.1.4 Đánh giá tính hiệu quả của mô hình
 * **Tránh Under-abstraction:** BuyAI được phân rã rõ ràng thành các module độc lập (Input, Recommend, Retrieve, Assistant) với luồng dữ liệu vào/ra định nghĩa minh bạch.
 * **Tách biệt logic và cài đặt:** Hàm tính điểm hay công thức Cosine Similarity đóng vai trò là đặc tả hành vi, giúp nhóm dễ dàng thay đổi thuật toán lõi (ví dụ: đổi mô hình Embedding) mà không làm hỏng cấu trúc SQLite / ChromaDB tổng thể.
 * **Liên kết chặt chẽ với Pain Points:** Việc tích hợp biến `novelty_score` và thiết kế hàm `isDuplicate(p, H)` giải quyết triệt để User Story cốt lõi (US-04) — giảm thiểu nỗi đau mua trùng lặp sản phẩm của du khách.
 
 ---
 
-## 2. Các lớp trừu tượng
+## [24120090 - Đặng Hồng Minh] 7.2 Trừu tượng hóa Dữ liệu và Chức năng
 
 Để hệ thống hoạt động đồng bộ và dễ bảo trì, cấu trúc hệ thống được chia thành 4 lớp trừu tượng hóa từ mức tiếp nhận thông tin đến mức xử lý logic sâu:
 
@@ -66,7 +66,7 @@ $$similarity(f(p), f(h)) > threshold$$
 
 ---
 
-## 3. Sơ đồ luồng dữ liệu trừu tượng (System Abstraction Flow)
+## [24120090 - Đặng Hồng Minh] 7.3 Sơ đồ luồng dữ liệu trừu tượng
 
 Dưới đây là sơ đồ mô tả cách dữ liệu thế giới thực được trừu tượng hóa và luân chuyển qua 4 lớp chức năng của hệ thống BuyAI.
 

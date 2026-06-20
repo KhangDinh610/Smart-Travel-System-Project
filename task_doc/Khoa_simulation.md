@@ -1,6 +1,6 @@
-# CHƯƠNG X: MÔ PHỎNG VÀ THỰC NGHIỆM HỆ THỐNG (SIMULATION & TESTING)
+# 10. MÔ PHỎNG VÀ THỰC NGHIỆM (Simulation) & 11. KIỂM THỬ (Testing)
 
-## 1. Mục đích và Phạm vi mô phỏng
+## [24120344 - Hoàng Trần Minh Khoa] 10.1 Mục đích và Phạm vi mô phỏng
 
 Chương này mô tả chi tiết toàn bộ quá trình vận hành, thực nghiệm và đánh giá hệ thống **Smart Travel System (STS) (BuyAI)**. Mục đích chính của việc mô phỏng bao gồm:
 1. **Kiểm chứng tính khả thi của Thuật toán:** Đánh giá độ chính xác của các thuật toán nhận diện hình ảnh (Visual Retrieval) bằng CLIP, đo lường sự tương đồng ngữ nghĩa (Semantic Similarity) bằng SentenceTransformer kết hợp từ vựng và substring trong tính năng phát hiện trùng lặp (Duplicate Detection).
@@ -10,7 +10,7 @@ Chương này mô tả chi tiết toàn bộ quá trình vận hành, thực ngh
 
 ---
 
-## 2. Thiết lập Môi trường và Dữ liệu mô phỏng
+## [24120344 - Hoàng Trần Minh Khoa] 10.2 Thiết lập Môi trường và Dữ liệu mô phỏng
 
 ### 2.1 Môi trường triển khai (Deployment Environment)
 Hệ thống được khởi chạy và mô phỏng trên môi trường cục bộ (Localhost) với các thông số cấu hình cụ thể:
@@ -43,7 +43,7 @@ Trước khi tiến hành các kịch bản, hệ thống được nạp một t
 
 ---
 
-## 3. Các kịch bản mô phỏng chi tiết (Detailed Scenarios)
+## [24120344 - Hoàng Trần Minh Khoa] 10.3 Các kịch bản mô phỏng chi tiết (Detailed Scenarios)
 
 Dưới đây là các kịch bản thực nghiệm từ lúc người dùng bắt đầu mở ứng dụng cho đến khi hoàn thành chu trình mua sắm và tìm hiểu thông tin sản phẩm.
 
@@ -123,7 +123,7 @@ Dưới đây là các kịch bản thực nghiệm từ lúc người dùng b�
 
 ---
 
-## 4. Tổng hợp Kết quả và Đánh giá Thực nghiệm
+## [24120344 - Hoàng Trần Minh Khoa] 11.1 Kết quả kiểm thử và Đánh giá Thực nghiệm
 
 Sau quá trình chạy qua toàn bộ 5 kịch bản mô phỏng, hệ thống thu được những đánh giá khách quan sau:
 

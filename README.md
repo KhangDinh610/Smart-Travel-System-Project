@@ -24,8 +24,8 @@
 
 ## MỤC LỤC (Table of Contents)
 1. [Thành viên nhóm](#1-thành-viên-nhóm)
-2. [Ý tưởng đồ án](#2-ý-tưởng-đồ-án)
-3. [Phân tích và Chia nhỏ bài toán (Decomposition)](#3-phân-tích-và-chia-nhỏ-bài-toán-decomposition)
+2. [Ý tưởng (Idea)](#2-ý-tưởng-idea)
+3. [Phân tích và Chia nhỏ bài toán (Problem Analysis & Decomposition)](#3-phân-tích-và-chia-nhỏ-bài-toán-problem-analysis--decomposition)
 4. [Biểu diễn bài toán (Representation)](#4-biểu-diễn-bài-toán-representation)
 5. [Tổng quan hệ thống (System Overview)](#5-tổng-quan-hệ-thống-system-overview)
 6. [Nhận diện mẫu (Pattern Recognition)](#6-nhận-diện-mẫu-pattern-recognition)
@@ -69,7 +69,7 @@ BuyAI hướng tới việc trở thành một trợ lý mua sắm cá nhân th�
 
 ---
 
-## 3. PHÂN TÍCH VÀ CHIA NHỎ BÀI TOÁN (Decomposition)
+## 3. PHÂN TÍCH VÀ CHIA NHỎ BÀI TOÁN (Problem Analysis & Decomposition)
 ### [24120215 - Nguyễn Ngọc Phúc] 3.1 Phân tích bài toán (Problem analysis)
 ### 3.1.1 The Elements of a Well-defined Problem
 **Input / Initial states** : 
@@ -354,15 +354,15 @@ Nhận diện mẫu (Pattern Recognition) trong Tư duy Máy tính được nhó
 ```mermaid
 flowchart TD
     subgraph INPUTS [Dữ liệu đầu vào thô]
-        I1["Ảnh sản phẩm có nền nhiễu"]
-        I2["Câu truy vấn thô (Natural Language)"]
+        I1["Ảnh sản phẩm có\n nền nhiễu"]
+        I2["Câu truy vấn thô\n (Natural Language)"]
         I3["Hành vi xem sản phẩm mới"]
     end
 
     subgraph ENGINE [Bộ máy nhận diện mẫu - Pattern Recognition Engine]
         direction TB
         subgraph Vision_PR [Nhận diện Mẫu Thị Giác]
-            V1["rembg (Tách nền nhiễu)"] --> V2["CLIP (Trích xuất vector thị giác)"]
+            V1["rembg (Tách nền nhiễu)"] --> V2["CLIP (Trích xuất\n vector thị giác)"]
         end
         
         subgraph NLP_PR [Nhận diện Mẫu Ngữ Nghĩa]
@@ -370,14 +370,14 @@ flowchart TD
         end
         
         subgraph Dup_PR [Nhận diện Mẫu Trùng Lặp]
-            D1["Substring + Semantic + Lexical Matcher"]
+            D1["Substring + Semantic \n+ Lexical Matcher"]
         end
     end
 
     subgraph OUTPUTS [Mẫu được nhận diện và xử lý]
-        O1(["Nhận dạng sản phẩm & Tìm cửa hàng tương ứng"])
+        O1(["Nhận dạng sản phẩm\n & Tìm cửa hàng tương ứng"])
         O2(["Danh sách sản phẩm khớp ý nghĩa"])
-        O3(["Cảnh báo trùng lặp (Red Warning Alert)"])
+        O3(["Cảnh báo trùng lặp\n (Red Warning Alert)"])
     end
 
     I1 --> Vision_PR
@@ -509,7 +509,7 @@ Trong quá trình phát triển ứng dụng BuyAI, nhóm đã đối mặt vớ
 | Thách thức (Challenges) | Nguyên nhân gốc rễ (Root Causes) | Giải pháp hiện thực hóa (Solutions) | Kết quả thực nghiệm (Results) |
 | :--- | :--- | :--- | :--- |
 | **1. Hiện tượng AI "ảo giác" (Hallucination) về thông tin sản phẩm** | Mô hình LLM (Gemini) tự sinh thông tin mô tả và giá cả quà tặng không có thực trong cơ sở dữ liệu khi tư vấn cho khách. | Áp dụng kiến trúc RAG (Retrieval-Augmented Generation), đưa sản phẩm thực tế từ SQLite/ChromaDB làm context bắt buộc gửi kèm prompt. | Loại bỏ hoàn toàn câu trả lời sai lệch; chatbot chỉ tư vấn các sản phẩm thực tế có trong hệ thống kèm mức giá chính xác. |
-| **2. Nhiễu hậu cảnh làm giảm độ chính xác của tìm kiếm ảnh (Visual Search)** | Ảnh chụp thực tế tại cửa hàng chứa nhiều yếu tố nhiễu (tay người cầm, kệ hàng, ánh sáng phản chiếu) làm lệch vector đặc trưng của CLIP. | Tích hợp module tiền xử lý ảnh sử dụng thư viện `rembg` (Remove Background) dựa trên U2NET để cô lập vật thể và đưa về nền trắng chuẩn trước khi mã hóa CLIP. | Tăng độ tương đồng Cosine chính xác lên 28%; hệ thống nhận diện đúng sản phẩm bất kể hậu cảnh chụp phức tạp. |
+| **2. Database có nhiều dữ liệu nhiễu** | Trong quá trình cào dữ liệu quy mô lớn, có những liệu không liên quan vô tình được thu thập vào. | Tiến hành phân chia thành từng block dữ liệu để lọc lại. | Dữ liệu trở nên sạch hơn và phù hợp hơn với hệ thống. |
 | **3. Độ trễ lớn của quy trình tìm kiếm lai (Hybrid Search Latency)** | Việc gọi liên tiếp: Query Expansion -> Embeddings -> ChromaDB Query -> SQLite Query -> Merge tốn thời gian API và mạng ($>3s$). | Sử dụng cơ chế bất đồng bộ (`async/await`) trong FastAPI, lập chỉ mục HNSW trong ChromaDB và tối ưu hóa index các cột tìm kiếm trong SQLite. | Giảm thời gian phản hồi trung bình (P95 Latency) từ $3.2s$ xuống còn dưới $850ms$, đáp ứng tốt trải nghiệm thời gian thực. |
 | **4. Bỏ sót trùng lặp khi người dùng nhập sai khác hoặc viết tắt tên sản phẩm** | Du khách viết sai chính tả hoặc ghi nhận sản phẩm bằng các tên biến thể (ví dụ: "Trà Atisô" vs "Tra Atiso hop giay"). | Phát triển động cơ so khớp lai 3 tầng (Lexical-Semantic Hybrid Matcher): kết hợp Substring, Semantic Vector Match (`MiniLM`) và Lexical SequenceMatcher (`difflib`). | Nhận diện và cảnh báo trùng lặp với độ chính xác cao ngay cả khi tên gọi sản phẩm bị biến dạng hoặc viết tắt. |
 
@@ -520,18 +520,11 @@ Sơ đồ dưới đây minh họa cách hình ảnh tải lên được tách n
 
 ```mermaid
 flowchart LR
-    ImgInput["Ảnh chụp gốc\n(Hậu cảnh phức tạp)"] --> Rembg["Thư viện rembg\n(Mô hình U2NET)"]
-    Rembg -- "1. Tách biên & loại bỏ nền" --> AlphaChannel["Vật thể dạng RGBA\n(Không nền)"]
-    AlphaChannel --> WhiteBg["Dán lên khung ảnh\nWhite Background (RGBA -> RGB)"]
-    WhiteBg -- "2. Ảnh chuẩn hóa" --> CLIP["Mã hóa CLIP\n(clip-vit-base-patch32)"]
-    CLIP --> NormalizedVec["Vector đặc trưng L2-Norm\n(512 chiều)"]
-    NormalizedVec --> ChromaQuery["ChromaDB Vector Query\n(Cosine Similarity Match)"]
-    ChromaQuery --> ResultList["Danh sách sản phẩm tương đồng"]
+    ImgInput["Thu thập dữ liệu"] --> Rembg["Lưu trữ trong file .csv"]
+    Rembg --> Split["Tách thành từng block dữ liệu để lọc"]
+    Split --> AlphaChannel["Lọc lại dữ liệu"]
+    AlphaChannel --> WhiteBg["Gộp lại các block dữ liệu"]
 
-    style ImgInput fill:#f9f,stroke:#333
-    style Rembg fill:#bbf,stroke:#333
-    style CLIP fill:#bbf,stroke:#333
-    style ResultList fill:#9f9,stroke:#333
 ```
 
 ##### B. Luồng hoạt động của hệ thống RAG Chatbot (Giải quyết thách thức 1):
@@ -547,13 +540,8 @@ flowchart TD
     DBQuery --> ContextBuilder
     
     ContextBuilder -- "Dữ liệu sản phẩm\n & Lịch sử mua hàng" --> SystemPrompt["System Prompt\n(Yêu cầu chỉ tư\n vấn dựa trên Context)"]
-    SystemPrompt --> GeminiAPI["Google Gemini 1.5 Flash API"]
+    SystemPrompt --> GeminiAPI["Google Gemini 2.5 Flash API"]
     GeminiAPI --> ChatResponse["Câu trả lời tư vấn\n chính xác & thực tế\n(Trả về cho người dùng)"]
-
-    style UserQuery fill:#f9f,stroke:#333
-    style ContextBuilder fill:#ffb,stroke:#333
-    style GeminiAPI fill:#bbf,stroke:#333
-    style ChatResponse fill:#9f9,stroke:#333
 ```
 
 ---

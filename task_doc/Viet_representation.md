@@ -1,10 +1,10 @@
-# Representation - BuyAI / Smart Travel System
+# 4. BIỂU DIỄN BÀI TOÁN (Representation)
 
 > Phần này trình bày cách biểu diễn bài toán của dự án **BuyAI - hệ thống hỗ trợ mua sắm thông minh cho khách du lịch** dưới góc nhìn Tư duy Tính toán. Nội dung được chỉnh theo file kiến trúc `Graph.pdf`, trong đó hệ thống được mô tả như một **Smart Travel System** dùng kiến trúc client-server hiện đại, kết hợp React/TypeScript ở phía người dùng và FastAPI/Python ở phía máy chủ.
 
 ---
 
-## 1. Mục tiêu của Representation
+## [24120245 - Trần Lê Đức Việt] 4.1 Mục tiêu của Representation
 
 Trong Tư duy Tính toán, **Representation** là bước chuyển một vấn đề thực tế thành các mô hình dữ liệu, quan hệ, quy trình, công thức và luật xử lý để con người có thể hiểu, còn máy tính có thể triển khai bằng thuật toán.
 
@@ -21,7 +21,7 @@ Vì vậy, Representation của hệ thống cần trả lời các câu hỏi:
 
 ---
 
-## 2. Biểu diễn tổng quát bài toán
+## [24120245 - Trần Lê Đức Việt] 4.2 Biểu diễn tổng quát bài toán
 
 Hệ thống chuyển các thành phần ngoài đời thực thành các đối tượng dữ liệu và module xử lý trong phần mềm:
 
@@ -41,7 +41,7 @@ Như vậy, các khái niệm mơ hồ như “sản phẩm phù hợp”, “�
 
 ---
 
-## 3. Biểu diễn kiến trúc 5 lớp theo Graph.pdf
+## [24120245 - Trần Lê Đức Việt] 4.3 Biểu diễn kiến trúc 5 lớp theo Graph.pdf
 
 Theo file kiến trúc, hệ thống được chia thành 5 lớp rõ ràng. Cách biểu diễn này giúp nhóm nhìn được hệ thống ở mức tổng thể trước khi đi vào từng thuật toán.
 
@@ -71,7 +71,7 @@ flowchart TD
 
 ---
 
-## 4. Data Representation - Biểu diễn dữ liệu
+## [24120245 - Trần Lê Đức Việt] 4.4 Data Representation - Biểu diễn dữ liệu
 
 ### 4.1 Các thực thể chính
 
@@ -130,7 +130,7 @@ Các thực thể được biểu diễn trực tiếp trong `backend/database.p
 
 ---
 
-## 5. Structural Representation - Biểu diễn cấu trúc
+## [24120245 - Trần Lê Đức Việt] 4.5 Structural Representation - Biểu diễn cấu trúc
 
 ### 5.1 Cấu trúc module
 
@@ -274,7 +274,7 @@ flowchart TD
 
 ---
 
-## 6. Process Representation - Biểu diễn quy trình xử lý
+## [24120245 - Trần Lê Đức Việt] 4.6 Process Representation - Biểu diễn quy trình xử lý
 
 ### 6.1 Luồng tổng quát từ Graph.pdf
 
@@ -364,7 +364,7 @@ flowchart TD
 
 ---
 
-## 7. Mathematical Representation - Biểu diễn toán học
+## [24120245 - Trần Lê Đức Việt] 4.7 Mathematical Representation - Biểu diễn toán học
 
 ### 7.1 Vector embedding cho tìm kiếm ngữ nghĩa
 
@@ -454,7 +454,7 @@ Ví dụ diễn giải:
 
 ---
 
-## 8. Logical Representation - Biểu diễn luật xử lý
+## [24120245 - Trần Lê Đức Việt] 4.8 Logical Representation - Biểu diễn luật xử lý
 
 ### 8.1 Luật xác thực
 
@@ -518,7 +518,7 @@ ELSE continue normal recommendation
 
 ---
 
-## 9. Ánh xạ Representation vào API
+## [24120245 - Trần Lê Đức Việt] 4.9 Ánh xạ Representation vào API
 
 | Endpoint | Dữ liệu đầu vào | Xử lý biểu diễn | Kết quả |
 |---|---|---|---|
@@ -537,7 +537,7 @@ ELSE continue normal recommendation
 
 ---
 
-## 10. Nguyên tắc Representation được áp dụng
+## [24120245 - Trần Lê Đức Việt] 4.10 Nguyên tắc Representation được áp dụng
 
 ### 10.1 Trừu tượng hóa dữ liệu
 
@@ -577,7 +577,7 @@ Hệ thống được chia thành ba lớp biểu diễn lớn:
 
 ---
 
-## 11. Lợi ích của cách biểu diễn
+## [24120245 - Trần Lê Đức Việt] 4.11 Lợi ích của cách biểu diễn
 
 Cách biểu diễn trên giúp dự án đạt được các lợi ích sau:
 
@@ -589,7 +589,7 @@ Cách biểu diễn trên giúp dự án đạt được các lợi ích sau:
 
 ---
 
-## 12. Kết luận
+## [24120245 - Trần Lê Đức Việt] 4.12 Kết luận
 
 Representation giúp biến bài toán hỗ trợ mua sắm thông minh cho khách du lịch từ một nhu cầu thực tế thành hệ thống có thể lập trình được. Dựa trên `Graph.pdf`, BuyAI được biểu diễn như một hệ thống client-server gồm 5 lớp: Frontend, Backend API, Backend Services, Database/Vector DB và Infrastructure.
 

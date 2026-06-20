@@ -1,8 +1,8 @@
-## Đánh giá giải pháp (Evaluation)
+# 12. ĐẠNH GIÁ GIẢI PHÁP (Evaluation)
 
 Việc đánh giá hệ thống Smart Shopping được thực hiện liên tục thông qua một vòng lặp: Đánh giá, Tinh chỉnh, Triển khai và Mô phỏng. Quá trình này dựa trên các nguyên tắc đo lường bằng chỉ số cụ thể, so sánh với các yêu cầu của bài toán và sử dụng phản hồi để cải thiện thuật toán.
 
-### 1. Mục tiêu đánh giá (Objectives)
+## [24120215 - Nguyễn Ngọc Phúc] 12.1 Mục tiêu đánh giá (Objectives)
 
 Hệ thống được đo lường dựa trên 5 mục tiêu cốt lõi:
 
@@ -12,7 +12,7 @@ Hệ thống được đo lường dựa trên 5 mục tiêu cốt lõi:
 * **Khả năng mở rộng (Scalability):** Đảm bảo hệ thống vẫn hoạt động tốt khi lượng dữ liệu lớn hoặc kiến trúc trở nên phức tạp.
 * **Tính khả dụng (Usability / Practicality):** Đảm bảo giải pháp dễ sử dụng và có thể triển khai tốt trong môi trường thực tế. Một thuật toán nhanh nhất cũng vô dụng nếu trải nghiệm người dùng (UX) kém hoặc bỏ qua bối cảnh thực tế của du khách.
 
-### 2. Phương pháp và Công cụ (Methods & Tools)
+## [24120215 - Nguyễn Ngọc Phúc] 12.2 Phương pháp và Công cụ (Methods & Tools)
 
 | Phương pháp | Ứng dụng trong dự án | Công cụ đề xuất |
 | :--- | :--- | :--- |
@@ -20,7 +20,7 @@ Hệ thống được đo lường dựa trên 5 mục tiêu cốt lõi:
 | **Benchmarking** | Đo lường thời gian chạy (runtime), bộ nhớ và băng thông khi AI Assistant xử lý NLP. So sánh hiệu năng giữa các phiên bản thuật toán. | Python timeit, cProfile |
 | **User Feedback** | Thu thập ý kiến của du khách và chủ cửa hàng về tính hiệu quả thực tế của các gợi ý mua sắm. | Google Forms |
 
-### 3. Các vấn đề tiềm ẩn cần tránh (Potential Issues)
+## [24120215 - Nguyễn Ngọc Phúc] 12.3 Các vấn đề tiềm ẩn cần tránh (Potential Issues)
 
 Trong quá trình đánh giá hệ thống, nhóm nhận diện và cam kết tránh các cạm bẫy sau:
 
@@ -29,7 +29,7 @@ Trong quá trình đánh giá hệ thống, nhóm nhận diện và cam kết tr
 * **Đánh giá chủ quan:** Mọi nhận định về chất lượng code hoặc tính dễ bảo trì phải được đo lường bằng các chỉ số cụ thể, không dựa trên cảm tính. Đồng thời, cần tránh thiên kiến xác nhận (Confirmation Bias) khi chỉ thu thập các bằng chứng ủng hộ giải pháp của nhóm mà phớt lờ các kết quả trái ngược.
 * **Thiếu đánh giá tổng hợp đa chiều:** Nhóm hiểu rằng hầu như không có giải pháp nào là hoàn hảo ở mọi mặt, do đó cần đánh giá sự đánh đổi (trade-offs) giữa tốc độ, bộ nhớ, độ chính xác, sự đơn giản và chi phí.
 
-### 4. Checklist kiểm tra (Evaluation Checklist)
+## [24120215 - Nguyễn Ngọc Phúc] 12.4 Checklist kiểm tra (Evaluation Checklist)
 
 Trước khi đóng gói phiên bản cuối, hệ thống cần vượt qua các câu hỏi kiểm tra sau:
 
