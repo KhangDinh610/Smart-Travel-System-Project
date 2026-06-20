@@ -51,6 +51,10 @@ backend/firebase-key.json
 .DS_Store
 Thumbs.db
 
+HEAD
+#File log
+\frontend\package-lock.json"
+=======
 # Local agent tooling
 .agents/
 
