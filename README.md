@@ -828,6 +828,9 @@ Sử dụng **Docker** để đóng gói toàn bộ hệ thống (App container 
 ---
 
 ## 15. NHẬT KÝ CÔNG VIỆC (Logbook)
+
+Định kỳ mỗi tối thứ 3 hàng tuần lúc 22h45, nhóm sẽ có 1 buổi họp để tổng kết, báo cáo tiến độ và phân công nhiệm vụ tiếp theo. Các buổi họp sẽ được tổ chức online qua Google Meet. Biên bản họp sẽ được soạn trên Google Docs và gửi sau mỗi buổi họp bởi Leader. Nhóm em đã sử dụng phương pháp Kanban để phân chia công việc nhằm đảm bảo tiến độ làm việc được sát sao hơn thông qua 3 trạng thái "Not started", "In progress", "Done".
+
 | MSSV | Thành viên | Phần trăm công việc hoàn thành | Số giờ làm việc hàng tuần |
 | :--- | :---: | :---: | :---: |
 | 24120332 | Đinh Công Khang | 100% | ~20h |
@@ -835,6 +838,8 @@ Sử dụng **Docker** để đóng gói toàn bộ hệ thống (App container 
 | 24120215 | Nguyễn Ngọc Phúc | 100% | ~20h |
 | 24120245 | Trần Lê Đức Việt | 100% | ~20h |
 | 24120344 | Hoàng Trần Minh Khoa | 100% | ~20h |
+
+*Bảng phân công công việc:* https://docs.google.com/spreadsheets/d/11BNTNS-2-PE7fxvYjixFMp8j0opzYdVebZSbqVPKg6A/edit?usp=sharing
 
 ---
 
