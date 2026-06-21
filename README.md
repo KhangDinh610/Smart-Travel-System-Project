@@ -10,11 +10,11 @@
 **Mã lớp:** CQ2024/6  
 **Mã nhóm:** Group06  
 **Thành viên nhóm:**
-1. 24120332 - Đinh Công Khang
-2. 24120215 - Nguyễn Ngọc Phúc
-3. 24120245 - Trần Lê Đức Việt
-4. 24120344 - Hoàng Trần Minh Khoa
-5. 24120090 - Đặng Hồng Minh
+1. 24120332 - Đinh Công Khang (Leader)
+2. 24120090 - Đặng Hồng Minh
+3. 24120215 - Nguyễn Ngọc Phúc
+4. 24120245 - Trần Lê Đức Việt
+5. 24120344 - Hoàng Trần Minh Khoa
 
 **Giảng viên hướng dẫn & TAs:**
 - Instructors: Hồ Tuấn Thanh, Mai Anh Tuấn
@@ -49,10 +49,10 @@
 | MSSV | Họ và tên | Email | Vai trò / Trách nhiệm |
 | :--- | :--- | :--- | :--- |
 | 24120332 | Đinh Công Khang | 24120332@student.hcmus.edu.vn | Nhóm trưởng, Backend Developer, AI Integration |
+| 24120090 | Đặng Hồng Minh | 24120090@student.hcmus.edu.vn | Abstraction Design, Documentation |
 | 24120215 | Nguyễn Ngọc Phúc | 24120215@student.hcmus.edu.vn | Recommendation Engine, Data Normalization |
 | 24120245 | Trần Lê Đức Việt | 24120245@student.hcmus.edu.vn | Visual Product Retrieval, Image Processing |
 | 24120344 | Hoàng Trần Minh Khoa | 24120344@student.hcmus.edu.vn | Simulation & Testing, QA/QC |
-| 24120090 | Đặng Hồng Minh | 24120090@student.hcmus.edu.vn | Abstraction Design, Documentation |
 
 ---
 
@@ -830,11 +830,11 @@ Sử dụng **Docker** để đóng gói toàn bộ hệ thống (App container 
 ## 15. NHẬT KÝ CÔNG VIỆC (Logbook)
 | MSSV | Thành viên | Phần trăm công việc hoàn thành | Số giờ làm việc hàng tuần |
 | :--- | :---: | :---: | :---: |
-| Đinh Công Khang | 100% | ~20h |
-| Nguyễn Ngọc Phúc | 100% | ~20h |
-| Trần Lê Đức Việt | 100% | ~20h |
-| Hoàng Trần Minh Khoa | 100% | ~20h |
-| Đặng Hồng Minh | 100% | ~20h |
+| 24120332 | Đinh Công Khang | 100% | ~20h |
+| 24120090 | Đặng Hồng Minh | 100% | ~20h |
+| 24120215 | Nguyễn Ngọc Phúc | 100% | ~20h |
+| 24120245 | Trần Lê Đức Việt | 100% | ~20h |
+| 24120344 | Hoàng Trần Minh Khoa | 100% | ~20h |
 
 ---
 
