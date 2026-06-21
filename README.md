@@ -844,7 +844,15 @@ Sử dụng **Docker** để đóng gói toàn bộ hệ thống (App container 
 ---
 
 ## 16. TUYÊN BỐ SỬ DỤNG AI
-Nhóm sử dụng Gemini CLI và Claude để hỗ trợ phân tích mã nguồn, tạo template báo cáo và tối ưu hóa logic API.
+
+Trong quá trình vibe coding đồ án, nhóm của chúng em đã sử dụng công cụ Gemini CLI để thực hiện các công việc như code, debug, lên ý tưởng. Nhưng Gemni CLI đã không còn hỗ trợ kể từ ngày 18/06 mà tích hợp lên Antigravity CLI nên các phiên làm việc trước đó của chúng em cũng đã bị mất. Nhóm chúng em đã nhờ Antigravity đọc lại toàn bộ nội dung, cấu trúc code của đồ án để sinh ra 1 file tổng hợp gồm: mô tả, hướng dẫn và các system prompt để các AI khác có thể dựng lại đồ án từ những thông tin có được trong file VibeCodingGuide.md. Còn lại các log làm việc với AI, nhóm chúng em đã tổng hợp lại trong file Log.md.
+
+Ngoài ra, trong quá trình thực hiện đồ án, nhóm chúng em cũng đã tìm hiểu về skills for agent và đã ứng dụng 1 vài skill được liệt kê bên dưới giúp đồ án được hoàn thiện tốt hơn.
+
+- **Một số skill đã sử dụng:**
+  1. [Scrapling](https://github.com/D4Vinci/Scrapling): Thu thập, cào dữ liệu từ các website bán hàng
+  2. [Understand-Anything](https://github.com/Egonex-AI/Understand-Anything): Tạo các sơ đồ kiến trúc đồ án, hỏi đáp sâu hơn về thông tin liên quan đến đồ án
+  3. [Agent-skills](https://github.com/addyosmani/agent-skills): Cải thiện việc xây dựng, kiểm thử, đánh giá code đồ án
 
 ---
 
