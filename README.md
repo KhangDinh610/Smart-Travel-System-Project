@@ -15,10 +15,12 @@
 3. 24120245 - Trần Lê Đức Việt
 4. 24120344 - Hoàng Trần Minh Khoa
 5. 24120090 - Đặng Hồng Minh
+
 **Giảng viên hướng dẫn & TAs:**
 - Instructors: Hồ Tuấn Thanh, Mai Anh Tuấn
-- TA: Phạm Nguyễn Sơn Tùng
-**Thời gian cập nhật mới nhất:** 20/06/2026
+- TA: Phạm Nguyễn Sơn Tùng  
+
+**Thời gian cập nhật mới nhất:** 21/06/2026
 
 ---
 
@@ -239,6 +241,8 @@ flowchart TD
     UpdateContext --> End
 ```
 
+* **Diễn giải sơ đồ 4.3.1**: Sơ đồ luồng tổng quát (Flowchart) mô tả các hành trình trải nghiệm của du khách khi tương tác với hệ thống. Bắt đầu từ lúc người dùng khởi chạy ứng dụng và đưa vào các loại dữ liệu đầu vào (Sở thích, ảnh chụp sản phẩm, câu hỏi tự nhiên hoặc thao tác ghi nhận mua hàng). Hệ thống sẽ tự động định tuyến đến mô-đun xử lý nghiệp vụ tương ứng (Recommendation Engine, Visual Search, AI Chatbot RAG, Purchase Logger) trước khi xuất kết quả trực quan ra màn hình hiển thị cho du khách.
+
 ### [24120245 - Trần Lê Đức Việt] 4.4 Biểu diễn Toán học
 *   **Hàm tính điểm gợi ý:** $score = w_1 \cdot rating + w_2 \cdot tag\_match + w_3 \cdot novelty - w_4 \cdot distance\_penalty$.
 *   **Độ tương tự Cosine:** $cosine\_similarity(A, B) = \frac{A \cdot B}{||A|| \cdot ||B||}$.
@@ -389,6 +393,8 @@ flowchart TD
     Dup_PR --> O3
 ```
 
+* **Diễn giải sơ đồ Nhận diện mẫu**: Sơ đồ thể hiện tiến trình nhận dạng các lớp mẫu hành vi và dữ liệu từ người dùng của Hệ thống nhận diện mẫu (Pattern Recognition Engine). Dữ liệu đầu vào thô (ảnh sản phẩm, câu hỏi tự nhiên, lịch sử xem sản phẩm) được phân chia để xử lý thông qua ba bộ nhận diện độc lập: Mẫu thị giác (sử dụng `rembg` và CLIP), Mẫu ngữ nghĩa (sử dụng Gemini và MiniLM), và Mẫu trùng lặp (kết hợp đối soát Substring, Semantic và Lexical). Kết quả đầu ra là các mẫu thông tin đã được số hóa và chuẩn hóa để hiển thị cảnh báo hoặc gợi ý cửa hàng tương ứng cho người dùng.
+
 ---
 
 ## 7. TRỪU TƯỢNG HÓA (Abstraction)
@@ -410,8 +416,8 @@ Mọi đối tượng và hành vi của du khách trong không gian mua sắm t
 | Thực thể thực tế | Mô hình trừu tượng hóa (Abstracted Data) | Ánh xạ Cấu trúc Code / Database |
 | :--- | :--- | :--- |
 | **Sở thích du khách** | Một vector sở thích (User preference vector) với các giá trị đã được chuẩn hóa trong khoảng $[0, 1]$. | Dữ liệu phiên người dùng (Session/Local state). |
-| **Sản phẩm (Đồ lưu niệm)** | Một đối tượng gồm các thuộc tính siêu dữ liệu (metadata): `{id, name, description, shop_id}` và một vector đặc trưng không gian (Vector Embeddings) đại diện cho nội dung/hình ảnh sản phẩm. | Metadata lưu tại bảng `products` (**SQLite**). Vector lưu tại **ChromaDB** qua mô hình `paraphrase-multilingual-MiniLM-L12-v2`. |
-| **Cửa hàng (Shop)** | Địa điểm vật lý cung cấp sản phẩm. | Lưu tại bảng `shops` (**SQLite**) với `{latitude, longitude, shop_type, opening_hours}`. |
+| **Sản phẩm (Đồ lưu niệm)** | Một đối tượng gồm các thuộc tính siêu dữ liệu (metadata): `{id, name, name_en, description, description_en, price, tag, image_url, category, vector_json, shop_id}` và một vector đặc trưng không gian (Vector Embeddings) đại diện cho nội dung/hình ảnh sản phẩm. | Metadata lưu tại bảng `products` (**SQLite**). Vector lưu tại **ChromaDB** qua mô hình `paraphrase-multilingual-MiniLM-L12-v2`. |
+| **Cửa hàng (Shop)** | Địa điểm vật lý cung cấp sản phẩm. | Lưu tại bảng `shops` (**SQLite**) với `{shop_id, name, address}`. |
 | **Hành vi mua sắm** | Tập hợp lịch sử mua sắm (`Purchase History`) chứa danh sách các sự kiện mua sắm mà người dùng đã xác nhận mua thành công. | Lưu tại bảng `history` (**SQLite**) với cấu trúc `{user_id, product_id, shop_id, timestamp}`. |
 | **Sở thích cá nhân** | Danh sách sản phẩm được người dùng lưu lại để xem xét (`Wishlist`). | Lưu tại bảng `wishlist` (**SQLite**) với cấu trúc `{user_id, product_id, timestamp}`. |
 | **Nhu cầu / Câu hỏi** | Các thực thể (`Entities` - ví dụ: "quà cho mẹ", "đồ thủ công") và ý định (`Intent` - ví dụ: hỏi thông tin, gợi ý quà) được trích xuất thông qua xử lý ngôn ngữ tự nhiên (NLP). | API Chatbot truyền ngữ cảnh vào Gemini. |
@@ -496,6 +502,8 @@ sequenceDiagram
     L1-->>User: Hiển thị kết quả & Phản hồi từ Trợ lý
 ```
 
+* **Diễn giải sơ đồ dữ liệu trừu tượng**: Sơ đồ trình tự (Sequence Diagram) thể hiện cách thức thông tin luân chuyển và tương tác giữa 4 lớp trừu tượng của ứng dụng BuyAI. Khi người dùng gửi yêu cầu, thông tin thô được xử lý qua Lớp Giao tiếp (L1) và Lớp Thấu hiểu Ngữ nghĩa/Thị giác (L3) để chuyển đổi thành không gian vector toán học. Lớp Gợi ý cá nhân hóa (L2) chịu trách nhiệm tính toán điểm đề xuất tổng hợp và gửi sang Lớp Quản lý hành vi (L4) để thực hiện đối soát trùng lặp sản phẩm trước khi đưa ra quyết định hiển thị cảnh báo đỏ hoặc đề xuất sản phẩm an toàn cho du khách.
+
 ---
 
 ## 8. THIẾT KẾ HỆ THỐNG VÀ THUẬT TOÁN (System / Algorithm Design)
@@ -525,6 +533,8 @@ flowchart TD
     BuyAI -- "Dịch, mở rộng truy vấn,\n RAG LLM" --> Gemini["Google Gemini API\n (External LLM)"]
 ```
 
+* **Diễn giải sơ đồ bối cảnh (Context Diagram - C1)**: Sơ đồ C1 thể hiện ranh giới hoạt động của hệ thống BuyAI. Người dùng (Du khách) tương tác trực tiếp với ứng dụng để tìm kiếm sản phẩm và trò chuyện. Hệ thống thực hiện ủy quyền xác thực tài khoản qua API Firebase Auth bên ngoài và tích hợp API Google Gemini bên ngoài để thực hiện các chức năng dịch thuật thông minh, mở rộng truy vấn và tổng hợp phản hồi chatbot.
+
 #### 8.2.2 Cấp độ 2: Sơ đồ Container (Container Diagram)
 Sơ đồ chi tiết hóa hệ thống BuyAI thành các container ứng dụng chạy độc lập và cách chúng trao đổi thông tin với nhau qua giao thức mạng.
 
@@ -542,6 +552,8 @@ flowchart TB
     end
 ```
 
+* **Diễn giải sơ đồ Container (Container Diagram - C2)**: Sơ đồ cấp độ C2 mô tả chi tiết cách phân rã hệ thống BuyAI thành hai container chính. Frontend React Container chạy độc lập trên trình duyệt, kết nối HTTPS với Backend FastAPI Container để truyền tải dữ liệu JSON. Backend FastAPI đóng vai trò trung gian thực hiện điều phối các yêu cầu đến dịch vụ Firebase Auth và Gemini AI, đồng thời thực thi các câu lệnh ORM trên cơ sở dữ liệu quan hệ SQLite và truy vấn khoảng cách cosine vector trên cơ sở dữ liệu ChromaDB.
+
 #### 8.2.3 Cấp độ 3: Sơ đồ thành phần Backend (Component Diagram)
 Sơ đồ đi sâu vào bên trong Container Backend (FastAPI) để mô tả các thành phần logic mã nguồn, nhiệm vụ của từng module và mối quan hệ của chúng.
 
@@ -558,6 +570,8 @@ flowchart TD
     DupDet --> DBClient["Database Client\n (database.py)\n- Cấu hình\n SQLAlchemy ORM\n- Truy vấn SQLite Session"]
     
 ```
+
+* **Diễn giải sơ đồ thành phần (Component Diagram - C3)**: Sơ đồ cấp độ C3 mô tả cấu trúc mô-đun mã nguồn bên trong Backend FastAPI. Thành phần định tuyến `api_contract.py` tiếp nhận yêu cầu từ client, xử lý bảo mật qua `auth_middleware.py` và chuyển tiếp đến các mô-đun xử lý nghiệp vụ độc lập như dịch thuật (`translation_utils.py`), kiểm tra trùng lặp (`detector_logic.py`), tìm kiếm ảnh (`visual_search.py`), và trợ lý AI (`ai_service.py`). Các mô-đun này tương tác trực tiếp với các client kết nối dữ liệu SQLite (`database.py`) và ChromaDB (`vector_db.py`).
 
 ---
 
@@ -590,6 +604,8 @@ flowchart LR
 
 ```
 
+* **Diễn giải sơ đồ luồng dữ liệu (Data Pipeline Flow)**: Sơ đồ mô tả luồng làm sạch và chuẩn hóa dữ liệu sản phẩm trong đồ án. Dữ liệu thô thu thập từ tệp Excel/CSV được chia nhỏ thành các khối (blocks) dữ liệu nhỏ hơn để chạy qua bộ lọc làm sạch nhiễu và loại bỏ các bản ghi không hợp lệ hoặc thiếu thông tin. Sau đó, các khối dữ liệu đã sạch sẽ được gộp lại và đồng bộ hóa thành tệp cơ sở dữ liệu CSV hoàn chỉnh thống nhất của hệ thống.
+
 ##### B. Luồng hoạt động của hệ thống RAG Chatbot (Giải quyết thách thức 1):
 Sơ đồ minh họa quá trình thu thập thông tin ngữ cảnh để ràng buộc câu trả lời của mô hình ngôn ngữ lớn (Gemini), đảm bảo câu trả lời không bị ảo giác.
 
@@ -606,6 +622,8 @@ flowchart TD
     SystemPrompt --> GeminiAPI["Google Gemini 2.5 Flash API"]
     GeminiAPI --> ChatResponse["Câu trả lời tư vấn\n chính xác & thực tế\n(Trả về cho người dùng)"]
 ```
+
+* **Diễn giải sơ đồ luồng hoạt động RAG Chatbot**: Sơ đồ thể hiện quy trình hoạt động của chatbot tư vấn mua sắm theo cơ chế RAG (Retrieval-Augmented Generation). Khi du khách đặt câu hỏi, hệ thống thực hiện truy vấn đồng thời: trích xuất vector ngữ nghĩa để tìm top 5 sản phẩm liên quan trong ChromaDB, và truy vấn lịch sử mua sắm/yêu thích của người dùng trong SQLite. Toàn bộ thông tin này được bộ dựng ngữ cảnh gom lại và chèn vào prompt gửi kèm đến Gemini API, buộc mô hình ngôn ngữ lớn chỉ sinh phản hồi dựa trên dữ liệu thật này.
 
 ---
 
@@ -810,13 +828,13 @@ Sử dụng **Docker** để đóng gói toàn bộ hệ thống (App container 
 ---
 
 ## 15. NHẬT KÝ CÔNG VIỆC (Logbook)
-| Thành viên | Phần trăm công việc | Số giờ làm việc |
-| :--- | :---: | :---: |
-| Đinh Công Khang |  |  |
-| Nguyễn Ngọc Phúc |  |  |
-| Trần Lê Đức Việt |  |  |
-| Hoàng Trần Minh Khoa |  |  |
-| Đặng Hồng Minh |  |  |
+| MSSV | Thành viên | Phần trăm công việc hoàn thành | Số giờ làm việc hàng tuần |
+| :--- | :---: | :---: | :---: |
+| Đinh Công Khang | 100% | ~20h |
+| Nguyễn Ngọc Phúc | 100% | ~20h |
+| Trần Lê Đức Việt | 100% | ~20h |
+| Hoàng Trần Minh Khoa | 100% | ~20h |
+| Đặng Hồng Minh | 100% | ~20h |
 
 ---
 
@@ -828,3 +846,4 @@ Nhóm sử dụng Gemini CLI và Claude để hỗ trợ phân tích mã nguồn
 ## 17. KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN
 ### [24120332 - Đinh Công Khang] 17.1 Kết luận
 Hệ thống đã hoàn thiện các tính năng cốt lõi, giải quyết được bài toán hỗ trợ mua sắm thông minh cho khách du lịch thông qua AI đa mô thức. Hướng phát triển tương lai bao gồm tích hợp thanh toán và mở rộng dữ liệu sản phẩm toàn quốc.
+
