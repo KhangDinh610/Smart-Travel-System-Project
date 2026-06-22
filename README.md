@@ -20,7 +20,7 @@
 - Instructors: Hồ Tuấn Thanh, Mai Anh Tuấn
 - TA: Phạm Nguyễn Sơn Tùng  
 
-**Thời gian cập nhật mới nhất:** 21/06/2026
+**Thời gian cập nhật mới nhất:** 22/06/2026
 
 ---
 
@@ -857,6 +857,62 @@ Ngoài ra, trong quá trình thực hiện đồ án, nhóm chúng em cũng đã
 ---
 
 ## 17. KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN
-### [24120332 - Đinh Công Khang] 17.1 Kết luận
-Hệ thống đã hoàn thiện các tính năng cốt lõi, giải quyết được bài toán hỗ trợ mua sắm thông minh cho khách du lịch thông qua AI đa mô thức. Hướng phát triển tương lai bao gồm tích hợp thanh toán và mở rộng dữ liệu sản phẩm toàn quốc.
+
+### [24120332 - Đinh Công Khang] 17.1 Thành quả đạt được (What have students implemented successfully)
+
+Nhóm đã hiện thực hóa thành công hệ thống **BuyAI (Smart Shopping System - STS)** phục vụ nhu cầu mua sắm thông minh của khách du lịch. Cụ thể, các thành quả công nghệ đã đạt được bao gồm:
+
+1. **Kiến trúc hệ thống 5 lớp hoàn chỉnh:**
+   - **Frontend (Giao diện người dùng):** Xây dựng bằng React, TypeScript, TailwindCSS, Shadcn UI và Framer Motion, cung cấp trải nghiệm mượt mà, hỗ trợ giao diện đa ngôn ngữ (Việt - Anh) và hoạt động tương thích trên nhiều thiết bị.
+   - **Backend API:** FastAPI (Python) được tối ưu hóa để quản lý luồng dữ liệu nghiệp vụ, xác thực và tích hợp AI.
+   - **Lớp Dịch vụ AI & Mô hình:** Tích hợp mô hình **OpenAI CLIP** để tìm kiếm bằng hình ảnh, mô hình **SentenceTransformer** (`paraphrase-multilingual-MiniLM-L12-v2`) cho so khớp ngữ nghĩa, và **Google Gemini API** (Gemini 2.5 Flash) xử lý RAG Chatbot cùng Gemini Vision (phân tích sâu thuộc tính ảnh).
+   - **Cơ sở dữ liệu song hành:** Lưu trữ dữ liệu quan hệ bằng **SQLite (SQLAlchemy)** và tìm kiếm vector bằng **ChromaDB**.
+   - **Hạ tầng Container hóa:** Đóng gói toàn bộ ứng dụng bằng **Docker & Docker Compose**, hỗ trợ cấu hình và khởi chạy nhanh chỉ với một câu lệnh.
+2. **5 Tính năng cốt lõi hoạt động ổn định và chính xác:**
+   - **AI Hybrid Search & Query Expansion:** Kết hợp tìm kiếm ngữ nghĩa (Semantic) và từ khóa truyền thống (Keyword/SQL LIKE) kèm cơ chế dịch thuật và mở rộng truy vấn qua Gemini AI.
+   - **AI Assistant / RAG Chatbot:** Tư vấn mua sắm cá nhân hóa bám sát dữ liệu cửa hàng thực tế và lịch sử người dùng để hạn chế ảo giác AI.
+   - **Visual Product Retrieval:** Tìm kiếm sản phẩm tương tự bằng ảnh chụp với quy trình tiền xử lý tách nền tự động (`rembg`) nhằm tăng độ chính xác thị giác.
+   - **AI Product Scanning:** Phân tích sâu thuộc tính sản phẩm từ ảnh bằng Gemini Vision làm cơ chế dự phòng thông minh khi tìm kiếm CLIP bị mờ hoặc nhiễu.
+   - **Duplicate Buying Detection & Warn Engine:** Phát hiện mua trùng lặp bằng thuật toán lai 3 lớp (Lexical-Semantic Hybrid Matcher) kết hợp substring, cosine similarity và khoảng cách ký tự, hiển thị cảnh báo đỏ trực quan trên UI.
+
+### [24120090 - Đặng Hồng Minh] 17.2 Bài học kinh nghiệm (What have students learned)
+
+Qua quá trình nghiên cứu và phát triển dự án từ đầu học kỳ, các thành viên trong nhóm đã tích lũy được nhiều bài học quý báu:
+
+1. **Ứng dụng Tư duy Máy tính (Computational Thinking) vào thực tế:**
+   - **Phân rã bài toán (Decomposition):** Chia nhỏ hệ thống lớn thành các module độc lập như Frontend, Backend, Database và AI Services để quản lý độ phức tạp.
+   - **Nhận diện mẫu (Pattern Recognition):** Tìm kiếm các quy luật lặp lại trong ảnh (họa tiết, vật thể chính) và văn bản (ý định tìm kiếm, hành vi mua sắm tương đương).
+   - **Trừu tượng hóa (Abstraction):** Chuyển đổi các thực thể thế giới thực (sản phẩm, sở thích du khách) thành các mô hình toán học và vector đặc trưng trong không gian đa chiều.
+   - **Thiết kế thuật toán (Algorithm Design):** Thiết kế logic đối soát trùng lặp 3 lớp và thuật toán cập nhật sở thích theo thời gian thực.
+2. **Kỹ năng Phát triển Phần mềm Hiện đại:** Làm quen với kiến trúc phân lớp sạch sẽ (Clean Architecture), kết nối frontend-backend thông qua API contract chặt chẽ, làm việc với Vector Database (ChromaDB) - một khái niệm hoàn toàn mới, và quản lý hạ tầng bằng Docker.
+3. **Kỹ năng làm việc nhóm và Quản lý dự án:** Áp dụng mô hình Kanban trong phân công công việc thông qua Google Sheets và họp định kỳ hàng tuần. Học cách giải quyết mâu thuẫn ý kiến thiết kế và tối ưu hóa tài nguyên chung khi tích hợp các mô hình AI lớn.
+4. **Vibe Coding và sử dụng AI hiệu quả:** Làm quen với phương pháp "Vibe Coding", biết cách viết system prompt chất lượng cao, định hướng cấu trúc cho AI trợ lý để hỗ trợ debug và tăng tốc độ phát triển mà không bị phụ thuộc hoàn toàn vào code tự động sinh.
+
+### [24120215 - Nguyễn Ngọc Phúc] 17.3 Hướng phát triển tương lai (Future work)
+
+Nhóm định hướng phát triển hệ thống BuyAI trong tương lai tập trung vào các điểm chính sau:
+
+1. **Mở rộng quy mô và nguồn dữ liệu:**
+   - Xây dựng hệ thống tự động thu thập dữ liệu (web scrapers) từ các trang thương mại điện tử lớn để làm phong phú danh mục sản phẩm thủ công, đặc sản.
+   - Mở rộng phạm vi địa lý của cửa hàng từ mức thử nghiệm cục bộ ra các trung tâm du lịch lớn trên toàn quốc (Hội An, Huế, Sa Pa, Đà Lạt...).
+2. **Tối ưu hóa Hiệu năng và Giảm chi phí:**
+   - Áp dụng các giải pháp lưu trữ bộ nhớ đệm (Caching) cho các truy vấn phổ biến của người dùng và các ảnh sản phẩm đặc trưng nhằm giảm tần suất gọi Gemini API và giảm độ trễ phản hồi (hiện tại từ 3-5 giây cho các tác vụ AI).
+   - Fine-tune các mô hình mã hóa (Embeddings) nội địa hóa tiếng Việt để tăng độ chính xác của tìm kiếm ngữ nghĩa và so khớp trùng lặp.
+3. **Tích hợp các tính năng thương mại nâng cao:**
+   - Hiện thực hóa tính năng giỏ hàng thực tế, tích hợp cổng thanh toán trực tuyến (Momo, VNPAY, v.v.).
+   - Xây dựng hệ thống gợi ý cá nhân hóa sâu sắc (Recommendation System) dựa trên thuật toán Collaborative Filtering và ma trận Preference Vector cập nhật liên tục theo thời gian thực.
+   - Bổ sung cơ chế đánh giá (Rating) và phản hồi (Reviews) tin cậy của cộng đồng du khách.
+
+### [24120245 - Trần Lê Đức Việt & 24120344 - Hoàng Trần Minh Khoa] 17.4 Đóng góp ý kiến cho môn học (Student suggestions)
+
+Dựa trên trải nghiệm học tập thực tế trong học kỳ này, nhóm xin đề xuất một số ý kiến đóng góp nhằm cải thiện môn học Tư duy Máy tính (Computational Thinking) trong các học kỳ tới:
+
+1. **Đối với Giảng viên (Instructors):**
+   - Giảng viên đã truyền đạt rất tốt các khái niệm cốt lõi của Computational Thinking. Tuy nhiên, nếu có thêm các buổi chia sẻ/seminar ngắn về cách ánh xạ trực tiếp các khái niệm lý thuyết (như Abstraction, Pattern Recognition) vào các kiến trúc code hiện đại (như Vector DB, Embeddings, AI Agent) ngay từ đầu học kỳ, sinh viên sẽ dễ dàng hình dung và định hướng đồ án hơn.
+   - Đề xuất tăng cường thêm các giờ thảo luận mở về cách thiết kế thuật toán sáng tạo, giúp sinh viên không chỉ "code chạy được" mà còn rèn luyện tư duy tối ưu hóa độ phức tạp thuật toán.
+2. **Đối với Trợ giảng (Teaching Assistants - TAs):**
+   - TA đã hỗ trợ nhóm rất nhiệt tình trong các buổi review tiến độ. Đề xuất TA có thể tổ chức thêm các buổi hướng dẫn ngắn (Q&A/Tutorial) về các công nghệ phổ biến như Docker, FastAPI, hoặc cách quản lý source code bằng Git hiệu quả, vì nhiều sinh viên còn gặp nhiều khó khăn trong việc thiết lập môi trường chạy dự án ở giai đoạn đầu.
+3. **Đối với Môn học (The Course in Next Semesters):**
+   - Đề xuất môn học cung cấp thêm một danh sách các bài toán gợi ý hoặc kho đồ án mẫu tiêu biểu của các năm trước (được ghi nhận điểm cao) để các khóa sau có nguồn tham khảo trực quan về mức độ phức tạp và tiêu chuẩn báo cáo.
+   - Về phân bổ thời gian: Nên đẩy sớm hạn chót của việc hoàn thiện file API contract và kiến trúc hệ thống sơ bộ (C4 Model) lên sớm hơn. Điều này giúp các nhóm tránh được việc dồn lực code quá nặng vào cuối kỳ và có thêm thời gian để thực hiện User Testing kỹ lưỡng hơn.
 
