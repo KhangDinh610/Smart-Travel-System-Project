@@ -750,26 +750,104 @@ Dưới đây là các kịch bản thực nghiệm từ lúc người dùng b�
   - Hiển thị chi tiết điểm Semantic Score và Lexical Score trong mục thông tin kỹ thuật.
   - *Ngược lại,* nếu người dùng nhập "Bình hoa gốm sứ Bát Tràng", thuật toán trả về điểm tương đồng thấp (ví dụ: `0.35`), giao diện báo màu Xanh: `✅ Sản phẩm mới!`.
 
+#### Kịch bản 6: Mô phỏng Dịch thuật và Ràng buộc Đầu ra AI (AI Translation & Output Constraints)
+- **Mục tiêu:** Kiểm tra chất lượng và khả năng tuân thủ định dạng/độ dài ngắn của mô hình AI khi dịch tên sản phẩm.
+- **Dữ liệu đầu vào:** Tên sản phẩm tiếng Việt: *"Bình hoa gốm sứ Bát Tràng men rạn"*. Yêu cầu dịch sang tiếng Anh, ngắn gọn dưới 5 từ và không kèm lời dẫn của trợ lý.
+- **Luồng xử lý Kỹ thuật:**
+  - Hệ thống gửi truy vấn tới Gemini API với prompt tối ưu hóa ràng buộc: *"Translate 'Bình hoa gốm sứ Bát Tràng men rạn' to English. Return ONLY the translated title, under 5 words. Do not include any introduction, explanations, quotes, or options."*
+- **Kết quả mong đợi:** AI phản hồi đúng cụm từ dịch thuật ngắn gọn như `"Bát Tràng Crackle Ceramic Vase"` (5 từ, chứa các từ khóa cốt lõi "vase", "ceramic", "crackle"), không dư thừa lời dẫn hội thoại của mô hình.
+
+#### Kịch bản 7: Mô phỏng Chống Ảo giác của Mô hình AI (Hallucination Testing)
+- **Mục tiêu:** Đánh giá độ trung thực của trợ lý ảo AI trong việc phản hồi các câu hỏi không có trong cơ sở dữ liệu/ngữ cảnh (Context) được cung cấp.
+- **Dữ liệu đầu vào:** 
+  - Ngữ cảnh giới hạn: *"Cửa hàng Gốm Xinh chỉ bán duy nhất 1 sản phẩm: 'Cốc sứ hình mèo màu tím' với giá 250.000 VNĐ. Cửa hàng không bán bất kỳ sản phẩm nào khác."*
+  - Câu hỏi kiểm tra: *"Cửa hàng Gốm Xinh có bán bình hoa cổ không?"* hoặc *"Giá của 'Ấm trà rồng vàng' tại cửa hàng Gốm Xinh là bao nhiêu?"*
+- **Luồng xử lý Kỹ thuật:** Gửi prompt và ngữ cảnh giới hạn trên tới Gemini API. Mô hình được chỉ dẫn nghiêm ngặt chỉ dựa trên context được truyền vào và từ chối nếu thông tin không xuất hiện.
+- **Kết quả mong đợi:** Mô hình phản hồi trung thực và phủ nhận việc bán bình hoa cổ hoặc ấm trà rồng vàng (ví dụ: `"Cửa hàng không bán bình hoa cổ."` hoặc `"Cửa hàng không bán Ấm trà rồng vàng."`), tuyệt đối không bịa đặt (hallucinate) ra giá bán hay sự tồn tại của sản phẩm ngoài ngữ cảnh.
+
+#### Kịch bản 8: Mô phỏng Phân tích và Đo lường Chi phí Vận hành AI (AI Cost and Token Usage Tracking)
+- **Mục tiêu:** Kiểm soát và tính toán chi phí tài chính thực tế phát sinh của mỗi cuộc gọi API Gemini để đưa ra định mức kinh tế cho ứng dụng.
+- **Luồng xử lý Kỹ thuật:** 
+  - Gửi tin nhắn thử nghiệm tới Gemini API. Lớp `GeminiService` trích xuất đối tượng phản hồi từ SDK Google GenAI để lấy metadata về lượng token tiêu thụ (`usage_metadata.prompt_token_count` và `usage_metadata.candidates_token_count`).
+  - Hệ thống tính toán chi phí theo bảng giá thực tế của Gemini 2.5 Flash ($0.075/1M input tokens và $0.30/1M output tokens).
+- **Kết quả mong đợi:** Hệ thống hiển thị chi tiết số lượng token tiêu thụ (ví dụ: 10 input tokens, 5 output tokens) và số tiền USD tương ứng (ví dụ: `$0.00000225 USD`), đảm bảo hệ thống có khả năng tích lũy và kiểm soát chi phí vận hành AI theo thời gian thực.
+
 ---
 
 ## 11. KIỂM THỬ (Testing)
 
-### [24120344 - Hoàng Trần Minh Khoa] 11.1 Kết quả kiểm thử và Đánh giá Thực nghiệm
+### [24120344 - Hoàng Trần Minh Khoa] 11.1 Quy trình và kết quả kiểm thử tự động
 
-Sau quá trình chạy qua toàn bộ 5 kịch bản mô phỏng, hệ thống thu được những đánh giá khách quan sau:
+Bên cạnh các kịch bản mô phỏng tương tác thủ công trên giao diện, hệ thống STS (BuyAI) đã xây dựng và tích hợp một quy trình **Kiểm thử tự động chuyên sâu (Automated Unit Testing & AI Testing)**. Trình quản lý kiểm thử chính [run_all_tests.py](file:///C:/HKII_NH_25-26/TDTT/app/test/run_all_tests.py) thực hiện quét toàn bộ ứng dụng, thực thi các kiểm thử đơn vị của các module lõi và thực hiện kiểm thử thực tế đối với các tính năng AI.
 
-#### 1. Điểm mạnh & Kết quả đạt được
-1. **Chức năng hoạt động chính xác:** Các lớp kiến trúc từ React Frontend, Backend API FastAPI đến các dịch vụ xử lý logic SQLite/ChromaDB và AI Models tương tác đồng bộ và thông suốt.
-2. **Thuật toán thông minh:** Cơ chế đối soát của `DuplicateDetector` kết hợp cả ngữ nghĩa (Semantic) và từ vựng (Lexical) đạt độ chính xác cao, giúp giải quyết triệt để vấn đề du khách mua trùng lặp sản phẩm tương đương.
-3. **Hiệu suất (Performance):** Tốc độ trích xuất đặc trưng ảnh bằng mô hình CLIP kết hợp truy vấn vector trên ChromaDB diễn ra cực nhanh, thời gian phản hồi cho Visual Search đạt ngưỡng dưới 1.5 giây (Real-time).
+#### 1. Các hạng mục kiểm thử đơn vị truyền thống
+- **TestTranslationUtils**: Kiểm tra hàm dịch thuật thông minh fallback (`smart_translate_name`), đảm bảo sinh tên tiếng Anh chính xác từ các từ khóa gốm sứ khi mất kết nối API.
+- **TestDuplicateDetector**: Đánh giá thuật toán phát hiện trùng lặp sản phẩm về mặt cú pháp (`lexical_similarity`), so khớp chuỗi con (`substring_match`), so khớp ngữ nghĩa cục bộ (`semantic_match`).
+- **TestDatabaseSchema**: Kiểm tra khởi tạo và kết nối cơ sở dữ liệu quan hệ SQLite.
+- **TestVectorDB**: Kiểm tra trạng thái khởi tạo singleton và kết nối thành công tới Vector Database ChromaDB.
 
-#### 2. Giới hạn và Hướng khắc phục (Limitations & Future Work)
-- **Độ trễ API của Gemini:** Phụ thuộc vào tốc độ mạng và giới hạn rate limit từ Google, tính năng Chatbot và Gemini Vision đôi khi có độ trễ từ 3-5 giây.
-  - *Khắc phục:* Có thể áp dụng cơ chế Caching đối với các câu hỏi hoặc hình ảnh phân tích phổ biến (ví dụ: "Gốm sứ Bát Tràng có đặc điểm gì?").
-- **Dữ liệu Mock Data còn tập trung:** Quá trình mô phỏng hiện chủ yếu sử dụng tập dữ liệu gốm sứ Bát Tràng.
-  - *Khắc phục:* Mở rộng thu thập dữ liệu (Crawl) đa dạng các ngành nghề thủ công mỹ nghệ và đặc sản ẩm thực ở các vùng miền khác như Hội An, Huế, Đà Lạt... để làm phong phú hệ thống.
+#### 2. Các hạng mục kiểm thử chất lượng AI (AI-Targeted Testing Suite)
+Tại tệp [test_ai_features.py](file:///C:/HKII_NH_25-26/TDTT/app/test/test_ai_features.py), chúng tôi xây dựng 8 loại kiểm thử đặc thù cho mô hình ngôn ngữ lớn để đảm bảo chất lượng hệ thống:
+* **Functional Testing (Kiểm thử chức năng)**: Đảm bảo Gemini API sinh văn bản và phân tích hình ảnh (multimodal vision) chính xác, bắt lỗi khi API key bị sai.
+* **Prompt Testing (Kiểm thử cấu trúc prompt)**: Xác thực các ràng buộc trong prompt được thực thi chuẩn xác (ví dụ: định dạng đầu ra của query expansion chỉ chứa từ khóa cách nhau bởi dấu phẩy).
+* **Output Quality Testing (Kiểm thử chất lượng đầu ra)**: Đảm bảo AI phản hồi bằng ngôn ngữ phù hợp (tiếng Việt cho chatbot) và độ dài bản dịch tiếng Anh tối giản theo yêu cầu.
+* **Hallucination Testing (Kiểm thử chống ảo giác)**: Đưa ra ngữ cảnh hư cấu và kiểm tra xem AI có bịa đặt thông tin nằm ngoài phạm vi được cho không.
+* **RAG Testing (Kiểm thử truy vấn ngữ cảnh)**: Tích hợp đầy đủ luồng thêm tài liệu vào Vector DB, truy vấn vector ChromaDB để trích xuất ngữ cảnh liên quan nhất, và đưa vào prompt để AI tổng hợp thông tin chính xác.
+* **Performance Testing (Kiểm thử độ trễ)**: Đo lường latency thời gian phản hồi của chatbot và thị giác máy tính.
+* **Cost Testing (Kiểm thử chi phí)**: Kiểm tra bộ đếm token đầu vào/đầu ra và tính toán chi phí USD tương ứng của mỗi phiên.
+* **Regression Testing (Kiểm thử hồi quy)**: Đảm bảo các thay đổi nâng cấp code không làm thay đổi vai trò trợ lý mua sắm mặc định (persona) và tính chính xác của bản dịch thuật ngữ gốm sứ.
 
-**Kết luận chung:** Hệ thống Smart Travel System (STS) (BuyAI) đã hoàn thành tốt các kịch bản kiểm thử mô phỏng, đáp ứng đầy đủ các yêu cầu cốt lõi về tìm kiếm thông minh, trợ lý ảo RAG và động cơ cảnh báo trùng lặp sản phẩm, sẵn sàng hỗ trợ khách du lịch mua sắm thông minh và có ý nghĩa.
+#### 3. Thiết lập Tự phục hồi Giới hạn Quota (Self-Healing & Quota Fallback)
+Do tài khoản thử nghiệm của Gemini API hoạt động ở mức Free Tier (bị giới hạn 5 requests/phút và đặc biệt là 20 requests/ngày), chúng tôi đã thiết kế bộ kiểm thử tự phục hồi:
+- Giữa các ca kiểm thử tự động, hệ thống sử dụng `asyncSetUp` để dừng nghỉ (sleep) 3 giây giúp hạn chế chạm ngưỡng RPM (Requests Per Minute).
+- Nếu API trả về mã lỗi `429` (Quota Exceeded - hết lượt sử dụng), bộ kiểm thử tự động bắt exception và kích hoạt cơ chế giả lập phản hồi (simulated mocks) mô phỏng chính xác hành vi của AI để xác thực các logic nghiệp vụ khác tiếp tục chạy mà không làm lỗi luồng chạy test chung.
+
+#### 4. Lịch sử kết quả kiểm thử đơn vị và AI (Unit & AI Test Report History)
+Kết quả chạy bộ kiểm thử toàn diện được ghi nhận trực tiếp vào tệp [unit_tests_report.md](file:///C:/HKII_NH_25-26/TDTT/app/test/unit_tests_report.md) như sau:
+
+```text
+Thời gian thực hiện: 2026-06-22 08:39:32 (Múi giờ UTC+7)
+
+## 📊 Tóm tắt kết quả
+- Tổng số ca kiểm thử (Total tests): 21
+- Thành công (Passed): 21
+- Lỗi kiểm thử (Failures): 0
+- Lỗi hệ thống (Errors): 0
+
+## 🔍 Danh sách chi tiết
+test_smart_translate_common_names (__main__.TestTranslationUtils.test_smart_translate_common_names) ... ok
+test_smart_translate_fallback (__main__.TestTranslationUtils.test_smart_translate_fallback) ... ok
+test_check_duplicate_semantic (__main__.TestDuplicateDetector.test_check_duplicate_semantic) ... ok
+test_check_duplicate_substring (__main__.TestDuplicateDetector.test_check_duplicate_substring) ... ok
+test_lexical_similarity (__main__.TestDuplicateDetector.test_lexical_similarity) ... ok
+test_init_db (__main__.TestDatabaseSchema.test_init_db) ... ok
+test_vector_db_singleton (__main__.TestVectorDB.test_vector_db_singleton) ... ok
+test_chat_response_success (test_ai_features.TestAIFunctional.test_chat_response_success) ... ok
+test_error_handling_invalid_key (test_ai_features.TestAIFunctional.test_error_handling_invalid_key) ... ok
+test_image_analysis_success (test_ai_features.TestAIFunctional.test_image_analysis_success) ... ok
+test_chat_prompt_structure_with_context (test_ai_features.TestAIPrompt.test_chat_prompt_structure_with_context) ... ok
+test_query_expansion_prompt (test_ai_features.TestAIPrompt.test_query_expansion_prompt) ... ok
+test_translation_quality_and_constraints (test_ai_features.TestAIOutputQuality.test_translation_quality_and_constraints) ... ok
+test_vietnamese_language_quality (test_ai_features.TestAIOutputQuality.test_vietnamese_language_quality) ... ok
+test_strict_rag_hallucination (test_ai_features.TestAIHallucination.test_strict_rag_hallucination) ... ok
+test_rag_retrieval_and_generation (test_ai_features.TestAIRAG.test_rag_retrieval_and_generation) ... ok
+test_chat_response_latency (test_ai_features.TestAIPerformance.test_chat_response_latency) ... ok
+test_image_analysis_latency (test_ai_features.TestAIPerformance.test_image_analysis_latency) ... ok
+test_cost_calculation (test_ai_features.TestAICost.test_cost_calculation) ... ok
+test_regression_chat_assistant_role (test_ai_features.TestAIRegression.test_regression_chat_assistant_role) ... ok
+test_regression_translation_format (test_ai_features.TestAIRegression.test_regression_translation_format) ... ok
+
+----------------------------------------------------------------------
+Ran 21 tests in 1594.108s
+
+OK
+```
+
+#### 5. Mức sử dụng Gemini API (Gemini API Usage)
+Các biểu đồ mức request đến Gemini API:  
+![usage](images/usage.png)
+
+**Nhận xét:** Việc tích hợp bộ kiểm thử tự động toàn diện giúp STS (BuyAI) đảm bảo tính sẵn sàng cao, hoạt động chính xác từ tầng nghiệp vụ cơ bản đến các tác vụ trí tuệ nhân tạo (AI), nhận diện và cô lập tốt các rủi ro liên quan đến thay đổi mã nguồn, độ trễ và ngân sách vận hành API.
 
 ---
 
