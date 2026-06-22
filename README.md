@@ -900,7 +900,7 @@ Trước khi đóng gói phiên bản cuối, kiến trúc hệ thống cần v�
 ---
 
 ## 14. TRIỂN KHAI (Deployment)
-### [24120344 - Hoàng Trần Minh Khoa] 14.1 Hạ tầng
+### [24120332 - Đinh Công Khang] 14.1 Hạ tầng
 Sử dụng **Docker** để đóng gói toàn bộ hệ thống (App container và ChromaDB container), giúp triển khai đồng nhất trên mọi môi trường.
 
 ---
