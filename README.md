@@ -20,7 +20,7 @@
 - Instructors: Hồ Tuấn Thanh, Mai Anh Tuấn
 - TA: Phạm Nguyễn Sơn Tùng  
 
-**Thời gian cập nhật mới nhất:** 22/06/2026
+**Thời gian cập nhật mới nhất:** 23/06/2026
 
 ---
 
@@ -257,7 +257,7 @@ flowchart TD
 *   **Chủ cửa hàng địa phương (Local Merchants / Shop Owners):** Các đơn vị cung cấp sản phẩm và điểm bán. Họ mong muốn tiếp cận khách du lịch hiệu quả hơn, quảng bá sản phẩm truyền thống/thủ công mỹ nghệ, gia tăng doanh số và tạo dựng uy tín thông qua việc cung cấp thông tin xuất xứ rõ ràng.
 
 ### [24120332 - Đinh Công Khang] 5.2 Các tác nhân chính (Main Actors / User Types)
-Hệ thống xác định 3 tác nhân tương tác trực tiếp với các chức năng của BuyAI:
+Hệ thống xác định 2 tác nhân tương tác trực tiếp với các chức năng của BuyAI:
 1.  **Khách du lịch đã đăng ký (Registered Tourist):**
     *   *Mô tả:* Người dùng đã xác thực thông qua Firebase Auth (bằng email/password).
     *   *Quyền hạn:*
@@ -654,7 +654,7 @@ Hệ thống được khởi chạy và mô phỏng trên môi trường cục b
   - **Firebase Auth (Firebase Admin SDK):** Quản lý định danh và xác thực người dùng bằng cách xác minh Firebase ID Token (JWT) trong Authorization Header.
   - **ChromaDB:** Cơ sở dữ liệu Vector cục bộ, lưu trữ các embeddings của hình ảnh (collection `product_images`) và văn bản (cho RAG và Hybrid Search).
 - **Tích hợp mô hình AI / ML:**
-  - `Google Gemini API` (mô hình Gemini 1.5 Flash) xử lý RAG Chatbot, dịch thuật (Localization) và phân tích hình ảnh (Vision).
+  - `Google Gemini API` (mô hình Gemini 2.5 Flash) xử lý RAG Chatbot, dịch thuật (Localization) và phân tích hình ảnh (Vision).
   - Mô hình `CLIP` (`sentence-transformers/clip-ViT-B-32`) trích xuất đặc trưng ảnh thành vector 512 chiều phục vụ Visual Search.
   - Mô hình `paraphrase-multilingual-MiniLM-L12-v2` (SentenceTransformer) mã hóa văn bản thành vector để đối sánh độ tương đồng ngữ nghĩa (Semantic Match) trong bộ phát hiện trùng lặp.
 
@@ -893,9 +893,40 @@ Trước khi đóng gói phiên bản cuối, kiến trúc hệ thống cần v�
 ---
 
 ## 13. DEMO SẢN PHẨM
-### [24120332 - Đinh Công Khang] 13.1 Hình ảnh và Video
-- **Ảnh chụp giao diện:** [Màn hình Home, Chat, Visual Search]
-- **Link Video Demo (Youtube):** [Link video demo BuyAI]
+### [24120332 - Đinh Công Khang] 13.1 Hình ảnh
+- **Ảnh chụp màn hình đăng nhập:**
+![login](images/loginScreen.png)
+
+> Đây là màn hình đăng nhập của hệ thống. Người dùng có thể đăng kí tạo tài khoản bình thường với mail hoặc đăng nhập trực tiếp thông qua Google.
+- **Ảnh chụp màn hình chọn tag yêu thích:**
+![tag](images/tagScreen.png)
+
+> Đây là màn hình cold start. Khi người dùng lần đầu đăng nhập hệ thống sẽ được hỏi về những tag yêu thích. Từ đó hệ thống sẽ đề xuất các sản phẩm sát với nhu cầu của người dùng hơn.
+
+- **Ảnh chụp màn hình chính:**
+![main](images/mainScreen.png)
+
+> Đây là giao diện chính của hệ thống. Nơi người dùng có thể xem qua các sản phẩm, tìm kiếm sản phẩm, tìm kiếm bằng hỉnh ảnh hay chuyển qua lại giữa các tab khác nhau.
+
+- **Ảnh chụp màn hình chi tiết sản phẩm:**
+![detail](images/detailScreen.png)
+
+> Đây là màn hình chi tiết sản phẩm. Trình bày chi tiết thông tin của sản phẩm. Khi thấy sản phẩm yêu thích, người dùng có thể thêm nó vào wishlist hay ghi nhận đã mua sản phẩm đó. Ngoài ra nếu sản phẩm đã được ghi nhận từ trước đó thì người dùng cũng sẽ được thông báo đã mua sản phẩm.
+
+- **Ảnh chụp màn hình lưu sản phẩm:**
+![saved](images/savedScreen.png)
+
+> Sau khi sản phẩm được nhấn yêu thích hay ghi nhận mua sắm sẽ được lưu lại tại màn hình này.
+
+- **Ảnh chụp màn hình AI:**
+![ai](images/aiScreen.png)
+
+> Đây là màn hình nơi làm việc với AI. Người dùng có thể tạo một 1 phiên làm việc hoặc xóa các phiên làm việc trước đó.
+
+- **Ảnh chụp màn hình phiên làm việc với AI:**
+![ais](images/sessionScreen.png)
+
+> Đây là output của AI xuất ra khi nhấn vào 1 sản phẩm nào đó để hỏi đáp. Bạn có thể hỏi đáp sâu hơn về sản phẩm thông qua phiên làm việc này.
 
 ---
 
@@ -918,6 +949,9 @@ Sử dụng **Docker** để đóng gói toàn bộ hệ thống (App container 
 | 24120344 | Hoàng Trần Minh Khoa | 100% | ~20h |
 
 *Bảng phân công công việc:* https://docs.google.com/spreadsheets/d/11BNTNS-2-PE7fxvYjixFMp8j0opzYdVebZSbqVPKg6A/edit?usp=sharing
+
+*Lịch sử commit:*
+![history](images/history-commit.png)
 
 ---
 
