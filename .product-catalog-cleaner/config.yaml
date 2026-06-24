@@ -1,5 +1,0 @@
-
-model: qwen3:14b
-batch_size: 25
-retry_count: 2
-output_format: csv

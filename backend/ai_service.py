@@ -39,10 +39,38 @@ class GeminiService:
             self.client = genai.Client(api_key=api_key)
         
         self.model_name = 'gemini-2.5-flash'
+        self.last_usage_metadata = None
+        self.cumulative_usage = {
+            'prompt_tokens': 0,
+            'candidates_tokens': 0,
+            'total_tokens': 0
+        }
+
+    def get_last_cost(self) -> float:
+        """Calculate the cost of the last API call in USD."""
+        if not self.last_usage_metadata:
+            return 0.0
+        prompt_tokens = self.last_usage_metadata.prompt_token_count or 0
+        candidates_tokens = self.last_usage_metadata.candidates_token_count or 0
+        return (prompt_tokens * 0.075 + candidates_tokens * 0.30) / 1000000.0
+
+    def get_cumulative_cost(self) -> float:
+        """Calculate the total cost of all API calls in USD."""
+        prompt_tokens = self.cumulative_usage['prompt_tokens']
+        candidates_tokens = self.cumulative_usage['candidates_tokens']
+        return (prompt_tokens * 0.075 + candidates_tokens * 0.30) / 1000000.0
+
+    def reset_cumulative_usage(self):
+        """Reset cumulative token counters."""
+        self.cumulative_usage = {
+            'prompt_tokens': 0,
+            'candidates_tokens': 0,
+            'total_tokens': 0
+        }
 
     async def _generate_with_retry(self, contents, model=None):
         """
-        Hỗ trợ retry khi gặp lỗi 503 hoặc giới hạn tốc độ.
+        Hỗ trợ retry khi gặp lỗi 503 hoặc giới hạn tốc độ (429).
         """
         if not self.client:
             raise GeminiError("Gemini client is not initialized due to missing API key.")
@@ -50,7 +78,7 @@ class GeminiService:
         if model is None:
             model = self.model_name
             
-        max_retries = 3
+        max_retries = 5
         retry_delay = 2
         
         for attempt in range(max_retries):
@@ -59,6 +87,14 @@ class GeminiService:
                     model=model,
                     contents=contents
                 )
+                
+                # Track token usage
+                if hasattr(response, 'usage_metadata') and response.usage_metadata:
+                    self.last_usage_metadata = response.usage_metadata
+                    self.cumulative_usage['prompt_tokens'] += response.usage_metadata.prompt_token_count or 0
+                    self.cumulative_usage['candidates_tokens'] += response.usage_metadata.candidates_token_count or 0
+                    self.cumulative_usage['total_tokens'] += response.usage_metadata.total_token_count or 0
+
                 if not response.text:
                     print(f"Gemini API returned empty text. Candidates: {response.candidates}")
                     return "AI: Xin lỗi, tôi không thể trả lời câu hỏi này vì lý do an toàn hoặc kỹ thuật."
@@ -67,8 +103,13 @@ class GeminiService:
                 error_msg = str(e)
                 # Xử lý lỗi quá giới hạn (429)
                 if "429" in error_msg:
-                    # For free tier, reset is usually within a minute for RPM
-                    # or daily for RPD. We suggest 1 minute for RPM.
+                    if attempt < max_retries - 1:
+                        # Wait longer for quota recovery (e.g. 15s, 25s, 35s...)
+                        wait_time = 15 + attempt * 10
+                        print(f"Gemini API {model} rate limited (429). Retrying in {wait_time}s... (Attempt {attempt+1}/{max_retries})")
+                        await asyncio.sleep(wait_time)
+                        continue
+                    
                     reset_suggestion = "vui lòng thử lại sau khoảng 1-2 phút (giới hạn RPM) hoặc ngày mai (giới hạn RPD)"
                     raise GeminiQuotaError(f"Hết lượt sử dụng AI (Quota Exceeded): {error_msg}", reset_suggestion)
                 
@@ -76,7 +117,7 @@ class GeminiService:
                 if "503" in error_msg:
                     if attempt < max_retries - 1:
                         wait_time = retry_delay * (2 ** attempt)
-                        print(f"Gemini API {model} đang quá tải (Lần {attempt+1}). Thử lại sau {wait_time}s...")
+                        print(f"Gemini API {model} overloaded (503). Retrying in {wait_time}s... (Attempt {attempt+1}/{max_retries})")
                         await asyncio.sleep(wait_time)
                         continue
                     raise GeminiError("Hệ thống AI hiện đang quá tải và không thể phản hồi sau nhiều lần thử.", error_msg)

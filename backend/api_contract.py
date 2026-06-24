@@ -345,7 +345,7 @@ async def login_firebase(data: FirebaseLoginRequest):
 
 from database import get_db, History, Product, Shop, Wishlist, Notification, ChatSession, ChatMessage
 from sqlalchemy.orm import Session
-from sqlalchemy import or_
+from sqlalchemy import or_, and_
 
 # --- Chat Session Endpoints ---
 
@@ -428,54 +428,14 @@ async def get_products(search: Optional[str] = None, category: Optional[str] = N
     all_products = []
     
     if search:
-        # AI Query Expansion: Intelligently expand the search query
-        expanded_search = search
-        try:
-            # We use a short prompt to get relevant translation/expansion keywords
-            expansion_prompt = (
-                f"Identify the main product and core keywords from this search query: '{search}'. "
-                f"Provide a list of 5-8 related keywords in both Vietnamese and English "
-                f"(e.g., if 'tea set', give 'bộ ấm chén, teapot, ceramic, gốm sứ'). "
-                f"Return ONLY the keywords separated by commas."
-            )
-            expansion = await gemini_service.get_chat_response(expansion_prompt)
-            if expansion and not expansion.startswith("Error") and len(expansion) < 200:
-                expanded_search = f"{search}, {expansion}"
-        except Exception as e:
-            print(f"Search expansion error: {e}")
-
-        # 1. Semantic search using Vector DB with expanded query
-        where_clause = {"user_id": "system"}
-        semantic_ids = []
-        try:
-            results = vector_db.query(
-                query_texts=[expanded_search],
-                n_results=40,
-                where=where_clause
-            )
-            if results and results["ids"] and results["ids"][0]:
-                for rid in results["ids"][0]:
-                    if rid.startswith("prod_"):
-                        semantic_ids.append(int(rid.replace("prod_", "")))
-        except Exception as e:
-            print(f"Vector search error: {e}")
-
-        # 2. Multilingual Keyword search using SQLite (LIKE)
-        query = db.query(Product)
-        # Search for expanded terms in both VN and EN columns
-        raw_terms = expanded_search.replace(",", " ").split()
-        search_terms = [t.strip() for t in raw_terms if len(t.strip()) > 1]
+        # Hybrid Search with Bucket Ranking & Semantic Search (No API calls, ultra fast)
+        search_query = search.strip()
+        terms = [t.strip() for t in search_query.split() if len(t.strip()) > 1]
         
-        keyword_filters = []
-        for term in search_terms[:10]: # Cap terms for speed
-            keyword_filters.append(Product.name.ilike(f"%{term}%"))
-            keyword_filters.append(Product.description.ilike(f"%{term}%"))
-            keyword_filters.append(Product.name_en.ilike(f"%{term}%"))
-            keyword_filters.append(Product.description_en.ilike(f"%{term}%"))
+        scores = {}  # {product_id: score}
         
-        if keyword_filters:
-            query = query.filter(or_(*keyword_filters))
-        
+        # Define category filter if specified
+        category_filter_expr = None
         cat_map = {
             "food": ["food", "ẩm thực", "ăn", "uống"],
             "crafts": ["craft", "thủ công", "gốm", "sứ"],
@@ -483,39 +443,99 @@ async def get_products(search: Optional[str] = None, category: Optional[str] = N
             "art": ["art", "nghệ thuật", "tranh", "tượng"],
             "gifts": ["gift", "quà"]
         }
-        
         if category and category.lower() != "all":
             mapped_terms = cat_map.get(category.lower(), [category])
-            cat_filters = [Product.category.ilike(f"%{mt}%") for mt in mapped_terms] + \
-                          [Product.tag.ilike(f"%{mt}%") for mt in mapped_terms]
-            query = query.filter(or_(*cat_filters))
-        
-        keyword_products = query.limit(40).all()
-        keyword_ids = [p.id for p in keyword_products]
+            category_filter_expr = or_(*(
+                [Product.category.ilike(f"%{mt}%") for mt in mapped_terms] +
+                [Product.tag.ilike(f"%{mt}%") for mt in mapped_terms]
+            ))
 
-        # 3. Combine results (Semantic IDs first for relevance)
-        combined_ids = semantic_ids.copy()
-        for kid in keyword_ids:
-            if kid not in combined_ids:
-                combined_ids.append(kid)
+        # --- 1. SQLite Keyword Search (Bucket Ranking) ---
         
-        if not combined_ids:
+        # Bucket 1: Exact phrase match in Name or Name EN (Score: 100)
+        exact_name_filters = [
+            Product.name.ilike(f"%{search_query}%"),
+            Product.name_en.ilike(f"%{search_query}%")
+        ]
+        query = db.query(Product).filter(or_(*exact_name_filters))
+        if category_filter_expr is not None:
+            query = query.filter(category_filter_expr)
+        for p in query.limit(50).all():
+            scores[p.id] = scores.get(p.id, 0.0) + 100.0
+            
+        # Bucket 1b: Exact phrase match in Description or Description EN (Score: 30)
+        exact_desc_filters = [
+            Product.description.ilike(f"%{search_query}%"),
+            Product.description_en.ilike(f"%{search_query}%")
+        ]
+        query = db.query(Product).filter(or_(*exact_desc_filters))
+        if category_filter_expr is not None:
+            query = query.filter(category_filter_expr)
+        for p in query.limit(50).all():
+            scores[p.id] = scores.get(p.id, 0.0) + 30.0
+            
+        # Bucket 2: AND terms match (ALL words in query must match name/desc) (Score: 50)
+        if len(terms) > 1:
+            and_filters = []
+            for term in terms:
+                and_filters.append(or_(
+                    Product.name.ilike(f"%{term}%"),
+                    Product.name_en.ilike(f"%{term}%"),
+                    Product.description.ilike(f"%{term}%"),
+                    Product.description_en.ilike(f"%{term}%")
+                ))
+            query = db.query(Product).filter(and_(*and_filters))
+            if category_filter_expr is not None:
+                query = query.filter(category_filter_expr)
+            for p in query.limit(50).all():
+                scores[p.id] = scores.get(p.id, 0.0) + 50.0
+                
+        # Bucket 3: OR terms match (Some words in query match name/desc) (Score: matching fraction * 15)
+        if terms:
+            for term in terms:
+                # To keep it relevant, only match on name fields for OR term match
+                term_filters = [
+                    Product.name.ilike(f"%{term}%"),
+                    Product.name_en.ilike(f"%{term}%")
+                ]
+                query = db.query(Product).filter(or_(*term_filters))
+                if category_filter_expr is not None:
+                    query = query.filter(category_filter_expr)
+                for p in query.limit(50).all():
+                    scores[p.id] = scores.get(p.id, 0.0) + (15.0 / len(terms))
+
+        # --- 2. Vector DB Semantic Search ---
+        try:
+            results = vector_db.query(
+                query_texts=[search_query],
+                n_results=40,
+                where={"user_id": "system"}
+            )
+            if results and results["ids"] and results["ids"][0]:
+                for rid, dist in zip(results["ids"][0], results["distances"][0]):
+                    if rid.startswith("prod_"):
+                        pid = int(rid.replace("prod_", ""))
+                        # Convert distance to similarity score
+                        similarity_score = max(0.0, 1.0 - dist) * 40.0
+                        scores[pid] = scores.get(pid, 0.0) + similarity_score
+        except Exception as e:
+            print(f"Vector search error: {e}")
+
+        if not scores:
             return []
-
-        products = db.query(Product).filter(Product.id.in_(combined_ids)).all()
-        id_to_product = {p.id: p for p in products}
-        valid_ids = [pid for pid in combined_ids if pid in id_to_product]
+            
+        # Sort product IDs by total score descending
+        sorted_ids = [pid for pid, score in sorted(scores.items(), key=lambda item: item[1], reverse=True)]
         
-        if category and category.lower() != "all":
-            final_products_q = db.query(Product).filter(Product.id.in_(valid_ids))
-            mapped_terms = cat_map.get(category.lower(), [category])
-            cat_filters = [Product.category.ilike(f"%{mt}%") for mt in mapped_terms] + \
-                          [Product.tag.ilike(f"%{mt}%") for mt in mapped_terms]
-            final_products = final_products_q.filter(or_(*cat_filters)).all()
-            id_set = {p.id for p in final_products}
-            all_products = [id_to_product[pid] for pid in valid_ids if pid in id_set]
-        else:
-            all_products = [id_to_product[pid] for pid in valid_ids]
+        # Retrieve actual products and respect category filter
+        query = db.query(Product).filter(Product.id.in_(sorted_ids))
+        if category_filter_expr is not None:
+            query = query.filter(category_filter_expr)
+        matched_products = query.all()
+        id_to_product = {p.id: p for p in matched_products}
+        
+        # Sort them back to the correct order of scores
+        all_products = [id_to_product[pid] for pid in sorted_ids if pid in id_to_product]
 
     else:
         # Standard category filtering
@@ -832,42 +852,47 @@ async def scan_product(file: UploadFile = File(...)):
     return {"analysis": analysis}
 
 @router.post("/visual-search", tags=["Business"])
-async def visual_search(file: UploadFile = File(...)):
-    from PIL import Image
-    import io
-    
-    extractor = get_image_extractor()
-    if not extractor.loaded:
-        return {"products": [], "error": "AI Model for visual search is temporarily unavailable."}
-
+async def visual_search(file: UploadFile = File(...), db: Session = Depends(get_db)):
+    from google.genai import types
     try:
         contents = await file.read()
-        image = Image.open(io.BytesIO(contents))
-        vector = extractor.extract_vector(image)
-
-        results = vector_db.query(
-            query_embeddings=[vector.tolist()],
-            n_results=5,
-            collection_name="product_images"
+        
+        # 1. Ask Gemini to identify the main product in the image and return search keywords
+        prompt = (
+            "Identify the main product shown in this image. "
+            "Return a short search query in Vietnamese of 2-5 words (e.g., 'bộ ấm chén Bát Tràng', 'lọ hoa gốm sứ', 'cốc sứ có nắp') "
+            "that can be used to search for this product in a database. "
+            "Return ONLY the search query, nothing else."
         )
-
+        input_content = [
+            prompt,
+            types.Part.from_bytes(data=contents, mime_type="image/jpeg")
+        ]
+        
+        search_query = await gemini_service._generate_with_retry(contents=input_content)
+        search_query = search_query.strip().replace("`", "").replace('"', '').replace("'", "")
+        print(f"Visual search query extracted: '{search_query}'")
+        
+        # 2. Run our optimized get_products function using this extracted search query
+        products_list = await get_products(search=search_query, db=db)
+        
+        # 3. Format the results as expected by the frontend
         products = []
-        if results and results["metadatas"] and results["metadatas"][0]:
-            for i in range(len(results["metadatas"][0])):
-                meta = results["metadatas"][0][i]
-                dist = results["distances"][0][i]
-                products.append({
-                    "id": meta.get("product_id"),
-                    "name": meta.get("name"),
-                    "description": meta.get("description"),
-                    "price": meta.get("price"),
-                    "tag": meta.get("tag"),
-                    "shop_name": meta.get("shop_name"),
-                    "shop_address": meta.get("shop_address"),
-                    "score": float(max(0, 1 - dist))
-                })
-
+        for p in products_list[:10]: # Return top 10 matches
+            shop = db.query(Shop).filter(Shop.id == p.shop_id).first()
+            products.append({
+                "id": p.id,
+                "name": p.name,
+                "description": p.description,
+                "price": p.price,
+                "tag": p.tag,
+                "shop_name": shop.name if shop else "Unknown",
+                "shop_address": shop.address if shop else "Unknown Address",
+                "score": 0.95
+            })
+            
         return {"products": products}
+        
     except Exception as e:
         print(f"Visual search error: {e}")
         return {"products": [], "error": str(e)}

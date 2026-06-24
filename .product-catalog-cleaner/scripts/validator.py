@@ -1,1 +1,0 @@
-print('Validate JSON schema and retry invalid batches')

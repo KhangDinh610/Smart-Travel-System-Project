@@ -1,1 +1,0 @@
-Score based on completeness, length, translation quality.

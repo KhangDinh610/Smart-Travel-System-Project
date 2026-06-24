@@ -1,1 +1,0 @@
-print('Merge results and export CSV')
