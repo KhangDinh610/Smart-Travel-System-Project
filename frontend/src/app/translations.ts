@@ -239,7 +239,7 @@ export const t = {
       openNow: "Đang mở cửa",
       navigateTo: "Dẫn đường đến cửa hàng",
       askAI: "Hỏi AI Chatbot",
-      saveWishlist: "Lưu vào danh sách yêu thích",
+      saveWishlist: "Lưu yêu thích",
       relatedProducts: "Sản phẩm liên quan",
       chatTitle: "Trợ lý BuyAI",
       chatStatus: "Trực tuyến · Chuyên gia Hội An",

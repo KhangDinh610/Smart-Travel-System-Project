@@ -65,7 +65,7 @@ graph TD
 
 #### 🔹 Các bước thực hiện trên giao diện:
 1. **Tải ảnh lên hệ thống:**
-   * Emma thấy một bộ ấm chén đẹp nhưng không biết tên để gõ. Phúc click vào biểu tượng máy ảnh trên thanh tìm kiếm và chọn tải lên một tấm ảnh ấm chén Bát Tràng đã chuẩn bị sẵn.
+   * Emma thấy một bộ ấm chén đẹp nhưng không biết tên để gõ. Khang click vào biểu tượng máy ảnh trên thanh tìm kiếm và chọn tải lên một tấm ảnh ấm chén Bát Tràng đã chuẩn bị sẵn.
 2. **Hiển thị kết quả Vector Search:**
    * Dưới 1 giây, hệ thống trả về danh sách các sản phẩm gốm sứ có hình dáng và họa tiết tương đồng nhất trong kho dữ liệu Chroma Vector DB kèm điểm số tương quan (Score) (Ví dụ: bộ ấm trà Bát Tràng đạt `Score: 0.95`).
 
@@ -76,11 +76,11 @@ graph TD
 
 #### 🔹 Các bước thực hiện trên giao diện:
 1. **Xem chi tiết & Lưu sản phẩm (Wishlist):**
-   * Khang click chọn bộ ấm chén trà hàng đầu trong danh sách kết quả tìm kiếm hình ảnh của Phúc.
-   * Giao diện hiển thị chi tiết sản phẩm: Tên cửa hàng, địa chỉ bán, mô tả bằng Tiếng Anh. Khang thực hiện click **Lưu sản phẩm** (thêm vào Wishlist).
+   * Phúc click chọn bộ ấm chén trà hàng đầu trong danh sách kết quả tìm kiếm hình ảnh của Phúc.
+   * Giao diện hiển thị chi tiết sản phẩm: Tên cửa hàng, địa chỉ bán, mô tả bằng Tiếng Anh. Phúc thực hiện click **Lưu sản phẩm** (thêm vào Wishlist).
 2. **Trò chuyện với AI thông qua RAG Chat:**
-   * Khang bấm nút **"Ask AI"** ngay dưới thông tin sản phẩm. Hệ thống tạo phiên chat mới và tự động gửi lời chào hỏi kèm ngữ cảnh về bộ ấm chén đó.
-   * Khang gõ câu hỏi: *"What is the cultural meaning of this ceramic tea set in Vietnam?"* (Ý nghĩa văn hóa của bộ ấm trà này tại Việt Nam là gì?)
+   * Phúc bấm nút **"Ask AI"** ngay dưới thông tin sản phẩm. Hệ thống tạo phiên chat mới và tự động gửi lời chào hỏi kèm ngữ cảnh về bộ ấm chén đó.
+   * Phúc gõ câu hỏi: *"What is the cultural meaning of this ceramic tea set in Vietnam?"* (Ý nghĩa văn hóa của bộ ấm trà này tại Việt Nam là gì?)
    * Trợ lý ảo AI sử dụng Gemini-2.5-Flash (kèm RAG cung cấp thông tin chính xác từ database) đưa ra câu trả lời chi tiết và giàu chiều sâu văn hóa bằng Tiếng Anh.
 
 ---

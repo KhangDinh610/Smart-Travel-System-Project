@@ -93,7 +93,7 @@ export function HomeScreen({ tr, lang, setLang, user, savedItems, toggleSave, on
           name: p.name,
           price: (p.price || 0).toLocaleString("vi-VN") + " VNĐ",
           tag: p.tag || "Searched",
-          image: "https://images.unsplash.com/photo-1596401057633-54a8fe8ef647?q=80&w=600", // Fallback
+          image: p.image_url || "https://images.unsplash.com/photo-1596401057633-54a8fe8ef647?q=80&w=600", // Fallback
           location: p.shop_address || "Local Shop",
           distance: ""
         }));

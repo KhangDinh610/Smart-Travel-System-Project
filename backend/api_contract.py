@@ -128,6 +128,7 @@ def sync_image_collection_from_sqlite():
                     "shop_id": p.shop_id,
                     "shop_name": shop.name if shop else "Unknown",
                     "shop_address": shop.address if shop else "Unknown",
+                    "image_url": p.image_url or "",
                 })
             except Exception as ve:
                 print(f"Error parsing vector for product {p.id}: {ve}")
@@ -853,46 +854,100 @@ async def scan_product(file: UploadFile = File(...)):
 
 @router.post("/visual-search", tags=["Business"])
 async def visual_search(file: UploadFile = File(...), db: Session = Depends(get_db)):
-    from google.genai import types
     try:
         contents = await file.read()
         
-        # 1. Ask Gemini to identify the main product in the image and return search keywords
-        prompt = (
-            "Identify the main product shown in this image. "
-            "Return a short search query in Vietnamese of 2-5 words (e.g., 'bộ ấm chén Bát Tràng', 'lọ hoa gốm sứ', 'cốc sứ có nắp') "
-            "that can be used to search for this product in a database. "
-            "Return ONLY the search query, nothing else."
-        )
-        input_content = [
-            prompt,
-            types.Part.from_bytes(data=contents, mime_type="image/jpeg")
-        ]
-        
-        search_query = await gemini_service._generate_with_retry(contents=input_content)
-        search_query = search_query.strip().replace("`", "").replace('"', '').replace("'", "")
-        print(f"Visual search query extracted: '{search_query}'")
-        
-        # 2. Run our optimized get_products function using this extracted search query
-        products_list = await get_products(search=search_query, db=db)
-        
-        # 3. Format the results as expected by the frontend
-        products = []
-        for p in products_list[:10]: # Return top 10 matches
-            shop = db.query(Shop).filter(Shop.id == p.shop_id).first()
-            products.append({
-                "id": p.id,
-                "name": p.name,
-                "description": p.description,
-                "price": p.price,
-                "tag": p.tag,
-                "shop_name": shop.name if shop else "Unknown",
-                "shop_address": shop.address if shop else "Unknown Address",
-                "score": 0.95
-            })
+        # 1. Trích xuất vector từ ảnh bằng CLIP offline
+        extractor = get_image_extractor()
+        if extractor and extractor.loaded:
+            print("Running offline visual search using CLIP and ChromaDB...")
+            # Load ảnh từ bytes
+            image = extractor.load_image(io.BytesIO(contents))
+            # Tiền xử lý (tách nền bằng rembg nếu có, chuyển sang RGB)
+            preprocessed_image = extractor.preprocess_image(image)
+            # Trích xuất vector
+            vector = extractor.extract_vector(preprocessed_image)
             
-        return {"products": products}
-        
+            # Chuyển đổi vector sang dạng list float để truyền vào ChromaDB
+            if isinstance(vector, np.ndarray):
+                vector = vector.tolist()
+                
+            # 2. Truy vấn ChromaDB trong collection product_images
+            results = vector_db.query(
+                query_embeddings=[vector],
+                n_results=10,
+                collection_name="product_images"
+            )
+            
+            products = []
+            if results and results["ids"] and results["ids"][0]:
+                product_ids = [int(meta.get("product_id")) for meta in results["metadatas"][0]]
+                db_prods = db.query(Product).filter(Product.id.in_(product_ids)).all()
+                prod_map = {p.id: p for p in db_prods}
+                
+                for i in range(len(results["ids"][0])):
+                    meta = results["metadatas"][0][i]
+                    dist = results["distances"][0][i] if "distances" in results and results["distances"] else 0.0
+                    # Cosine distance to similarity score
+                    score = float(1.0 - dist)
+                    score = max(0.0, min(1.0, score))
+                    
+                    prod_id = int(meta.get("product_id"))
+                    prod = prod_map.get(prod_id)
+                    image_url = prod.image_url if prod else meta.get("image_url", "")
+                    
+                    products.append({
+                        "id": prod_id,
+                        "name": meta.get("name"),
+                        "description": meta.get("description"),
+                        "price": float(meta.get("price")),
+                        "tag": meta.get("tag"),
+                        "shop_name": meta.get("shop_name"),
+                        "shop_address": meta.get("shop_address"),
+                        "image_url": image_url,
+                        "score": score
+                    })
+            return {"products": products}
+        else:
+            print("CLIP model not loaded. Falling back to Gemini Multimodal online visual search...")
+            from google.genai import types
+            # 1. Ask Gemini to identify the main product in the image and return search keywords
+            prompt = (
+                "Identify the main product shown in this image. "
+                "Return a short search query in Vietnamese of 2-5 words (e.g., 'bộ ấm chén Bát Tràng', 'lọ hoa gốm sứ', 'cốc sứ có nắp') "
+                "that can be used to search for this product in a database. "
+                "Return ONLY the search query, nothing else."
+            )
+            input_content = [
+                prompt,
+                types.Part.from_bytes(data=contents, mime_type="image/jpeg")
+            ]
+            
+            search_query = await gemini_service._generate_with_retry(contents=input_content)
+            search_query = search_query.strip().replace("`", "").replace('"', '').replace("'", "")
+            print(f"Visual search query extracted: '{search_query}'")
+            
+            # 2. Run our optimized get_products function using this extracted search query
+            products_list = await get_products(search=search_query, db=db)
+            
+            # 3. Format the results as expected by the frontend
+            products = []
+            for p in products_list[:10]: # Return top 10 matches
+                shop = db.query(Shop).filter(Shop.id == p.shop_id).first()
+                products.append({
+                    "id": p.id,
+                    "name": p.name,
+                    "description": p.description,
+                    "price": p.price,
+                    "tag": p.tag,
+                    "shop_name": shop.name if shop else "Unknown",
+                    "shop_address": shop.address if shop else "Unknown Address",
+                    "image_url": p.image_url,
+                    "score": 0.95
+                })
+                
+            return {"products": products}
+            
     except Exception as e:
         print(f"Visual search error: {e}")
         return {"products": [], "error": str(e)}
